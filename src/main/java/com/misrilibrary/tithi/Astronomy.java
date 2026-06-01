@@ -122,11 +122,11 @@ public class Astronomy {
         return date.atStartOfDay().plusMinutes(minutes);
     }
 
-    /** Lahiri ayanamsha (sidereal correction). */
+    /** Lahiri ayanamsha (sidereal correction). Calibrated to Swiss Ephemeris. */
     public static double ayanamsha(LocalDateTime dt) {
-        double jd = julianDay(dt);
-        double t = (jd - 2451545.0) / 365.25;
-        return 23.85 + 0.0137 * t;
+        double year = dt.getYear() + (dt.getMonthValue() - 1) / 12.0 + (dt.getDayOfMonth() - 1) / 365.25;
+        double t = (year - 2000) / 100.0;
+        return 23.8571 + 1.3970 * t + 0.0003 * t * t;
     }
 
     /** Convert tropical longitude to sidereal. */
