@@ -1,0 +1,13 @@
+ACKNOWLEDGMENTS
+
+Astronomical algorithms based on:
+  Jean Meeus, "Astronomical Algorithms", 2nd Edition, Willmann-Bell, 1998
+
+Correction tables validated against:
+  Swiss Ephemeris (www.astro.com/swisseph) — used as development tool only, not shipped
+
+Festival dates verified against:
+  Drik Panchang (www.drikpanchang.com)
+
+Lahiri Ayanamsha:
+  Indian Astronomical Ephemeris standard (Chitrapaksha)
