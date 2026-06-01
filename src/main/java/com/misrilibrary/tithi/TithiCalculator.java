@@ -6,6 +6,8 @@ import com.misrilibrary.tithi.model.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Hindu lunar calendar (tithi/panchang) calculator.
@@ -55,20 +57,20 @@ public class TithiCalculator {
         String name = TithiUtils.getTithiName(tithiNum);
         int inPaksha = TithiUtils.tithiInPaksha(tithiNum);
 
-        // TODO: Month resolution (LunarMonthResolver) — placeholder using simple approximation
-        LunarMonth month = approximateMonth(date);
-        boolean isAdhika = false;
+        // Month resolution using city-specific resolver
+        LunarMonthResolver resolver = getResolver(city);
+        LunarMonthResolver.MonthInfo monthInfo = resolver.getMonthInfo(date);
 
         String pakshaStr = paksha == Paksha.SHUKLA ? "Shukla" : "Krishna";
-        String display = month.getDisplayName() + " " + pakshaStr + " " + name;
+        String adhikaPrefix = monthInfo.adhika ? "Adhika " : "";
+        String display = adhikaPrefix + monthInfo.month.getDisplayName() + " " + pakshaStr + " " + name;
 
-        return new TithiInfo(tithiNum, name, paksha, inPaksha, month, isAdhika, display);
+        return new TithiInfo(tithiNum, name, paksha, inPaksha, monthInfo.month, monthInfo.adhika, display);
     }
 
-    /** Placeholder month approximation until LunarMonthResolver is ported. */
-    private LunarMonth approximateMonth(LocalDate date) {
-        // Rough mapping: Chaitra ≈ Apr, Vaishakha ≈ May, etc.
-        int m = (date.getMonthValue() + 8) % 12; // shift so Jan→Pausha(9)
-        return LunarMonth.values()[m];
+    private final Map<String, LunarMonthResolver> resolverCache = new HashMap<>();
+
+    private LunarMonthResolver getResolver(String city) {
+        return resolverCache.computeIfAbsent(city, c -> new LunarMonthResolver(monthSystem, c));
     }
 }
