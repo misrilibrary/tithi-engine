@@ -21,12 +21,12 @@ class IntegrationTest {
 
     // ═══ TEST 1: getTithi known dates ═══
 
-    @Test @DisplayName("Mar 19, 2026 Ujjain = Pratipada (T1)")
+    @Test @DisplayName("Mar 19, 2026 Ujjain = Amavasya (T30)")
     void tithiMar19() {
         TithiInfo info = calcP.getTithi(LocalDate.of(2026, 3, 19), "Ujjain");
-        assertEquals(1, info.getTithiNumber());
-        assertEquals("Pratipada", info.getTithiName());
-        assertEquals(Paksha.SHUKLA, info.getPaksha());
+        assertEquals(30, info.getTithiNumber());
+        assertEquals("Amavasya", info.getTithiName());
+        assertEquals(Paksha.KRISHNA, info.getPaksha());
     }
 
     @Test @DisplayName("Jul 29, 2026 Ujjain = Purnima (T15)")

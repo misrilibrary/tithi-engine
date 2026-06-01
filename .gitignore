@@ -1,1 +1,2 @@
 build/\n.gradle/\n*.class
+.gradle/

@@ -50,22 +50,72 @@ public class Astronomy {
         double mp = norm360(134.9633964 + 477198.8675055 * t + 0.0087414 * t2 + t3 / 69699 - t4 / 14712000) * DEG2RAD;
         double f = norm360(93.2720950 + 483202.0175233 * t - 0.0036539 * t2 - t3 / 3526000 + t4 / 863310000) * DEG2RAD;
 
-        double sumL = 6288774 * Math.sin(mp) + 1274027 * Math.sin(2*d - mp) + 658314 * Math.sin(2*d)
-            + 213618 * Math.sin(2*mp) - 185116 * Math.sin(m) - 114332 * Math.sin(2*f)
-            + 58793 * Math.sin(2*d - 2*mp) + 57066 * Math.sin(2*d - m - mp) + 53322 * Math.sin(2*d + mp)
-            + 45758 * Math.sin(2*d - m) - 40923 * Math.sin(m - mp) - 34720 * Math.sin(d)
-            - 30383 * Math.sin(m + mp) + 15327 * Math.sin(2*d - 2*f) - 12528 * Math.sin(mp + 2*f)
-            + 10980 * Math.sin(mp - 2*f) + 10675 * Math.sin(4*d - mp) + 10034 * Math.sin(3*mp)
-            + 8548 * Math.sin(4*d - 2*mp) - 7888 * Math.sin(2*d + m - mp) - 6766 * Math.sin(2*d + m)
-            - 5163 * Math.sin(d - mp) + 4987 * Math.sin(d + m) + 4036 * Math.sin(2*d - m + mp)
-            + 3994 * Math.sin(2*d + 2*mp) + 3861 * Math.sin(4*d) + 3665 * Math.sin(2*d - 3*mp)
-            - 2689 * Math.sin(m - 2*mp) - 2602 * Math.sin(2*d - mp + 2*f)
-            + 2390 * Math.sin(2*d - m - 2*mp) - 2348 * Math.sin(d + mp)
-            + 2236 * Math.sin(2*d - 2*m) - 2120 * Math.sin(m + 2*mp) - 2069 * Math.sin(2*m);
+        double sumL = 0;
+        sumL += 6288774 * Math.sin(mp);
+        sumL += 1274027 * Math.sin(2*d - mp);
+        sumL += 658314 * Math.sin(2*d);
+        sumL += 213618 * Math.sin(2*mp);
+        sumL += -185116 * Math.sin(m);
+        sumL += -114332 * Math.sin(2*f);
+        sumL += 58793 * Math.sin(2*d - 2*mp);
+        sumL += 57066 * Math.sin(2*d - m - mp);
+        sumL += 53322 * Math.sin(2*d + mp);
+        sumL += 45758 * Math.sin(2*d - m);
+        sumL += -40923 * Math.sin(m - mp);
+        sumL += -34720 * Math.sin(d);
+        sumL += -30383 * Math.sin(m + mp);
+        sumL += 15327 * Math.sin(2*d - 2*f);
+        sumL += -12528 * Math.sin(mp + 2*f);
+        sumL += 10980 * Math.sin(mp - 2*f);
+        sumL += 10675 * Math.sin(4*d - mp);
+        sumL += 10034 * Math.sin(3*mp);
+        sumL += 8548 * Math.sin(4*d - 2*mp);
+        sumL += -7888 * Math.sin(2*d + m - mp);
+        sumL += -6766 * Math.sin(2*d + m);
+        sumL += -5163 * Math.sin(d - mp);
+        sumL += 4987 * Math.sin(d + m);
+        sumL += 4036 * Math.sin(2*d - m + mp);
+        sumL += 3994 * Math.sin(2*d + 2*mp);
+        sumL += 3861 * Math.sin(4*d);
+        sumL += 3665 * Math.sin(2*d - 3*mp);
+        sumL += -2689 * Math.sin(m - 2*mp);
+        sumL += -2602 * Math.sin(2*d - mp + 2*f);
+        sumL += 2390 * Math.sin(2*d - m - 2*mp);
+        sumL += -2348 * Math.sin(d + mp);
+        sumL += 2236 * Math.sin(2*d - 2*m);
+        sumL += -2120 * Math.sin(m + 2*mp);
+        sumL += -2069 * Math.sin(2*m);
+        sumL += 2048 * Math.sin(2*d - 2*m - mp);
+        sumL += -1773 * Math.sin(2*d + mp - 2*f);
+        sumL += -1595 * Math.sin(2*d + 2*f);
+        sumL += 1215 * Math.sin(4*d - m - mp);
+        sumL += -1110 * Math.sin(2*mp + 2*f);
+        sumL += -892 * Math.sin(3*d - mp);
+        sumL += -810 * Math.sin(2*d + m + mp);
+        sumL += 759 * Math.sin(4*d - m - 2*mp);
+        sumL += -713 * Math.sin(2*m - mp);
+        sumL += -700 * Math.sin(2*d + 2*m - mp);
+        sumL += 691 * Math.sin(2*d + m - 2*mp);
+        sumL += 596 * Math.sin(2*d - m - 2*f);
+        sumL += 549 * Math.sin(4*d + mp);
+        sumL += 537 * Math.sin(4*mp);
+        sumL += 520 * Math.sin(4*d - m);
+        sumL += -487 * Math.sin(d - 2*mp);
+        sumL += -399 * Math.sin(2*d + m - 2*f);
+        sumL += -381 * Math.sin(2*mp - 2*f);
+        sumL += 351 * Math.sin(d + m + mp);
+        sumL += -340 * Math.sin(3*d - 2*mp);
+        sumL += 330 * Math.sin(4*d - 3*mp);
+        sumL += 327 * Math.sin(2*d - m + 2*mp);
+        sumL += -323 * Math.sin(2*m + mp);
+        sumL += 299 * Math.sin(d + m - mp);
+        sumL += 294 * Math.sin(2*d + 3*mp);
 
         double a1 = norm360(119.75 + 131.849 * t) * DEG2RAD;
         double a2 = norm360(53.09 + 479264.290 * t) * DEG2RAD;
-        sumL += 3958 * Math.sin(a1) + 1962 * Math.sin(lp * DEG2RAD - f) + 318 * Math.sin(a2);
+        sumL += 3958 * Math.sin(a1);
+        sumL += 1962 * Math.sin(lp * DEG2RAD - f);
+        sumL += 318 * Math.sin(a2);
 
         return norm360(lp + sumL / 1000000.0);
     }
