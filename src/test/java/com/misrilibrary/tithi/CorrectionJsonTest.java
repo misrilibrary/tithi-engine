@@ -20,18 +20,33 @@ class CorrectionJsonTest {
     private static final int MIN_DAY_INDEX = 0;
     private static final int MAX_DAY_INDEX = 73413; // ~200 years
 
-    @Test @DisplayName("Every city JSON parses without error")
-    void allCitiesParseClean() {
+    @Test @DisplayName("Every JSON file in corrections/ folder parses cleanly")
+    void allJsonFilesInFolderParseClean() throws Exception {
+        // Scan the actual resources/corrections/ directory
+        java.net.URL dir = getClass().getResource("/corrections");
+        assertNotNull(dir, "corrections/ folder not found on classpath");
+        java.io.File folder = new java.io.File(dir.toURI());
+        java.io.File[] files = folder.listFiles((d, name) -> name.endsWith(".json"));
+        assertNotNull(files);
+        assertTrue(files.length >= 100, "Expected 100+ JSON files, found " + files.length);
+
         List<String> failures = new ArrayList<>();
-        for (String city : City.supported()) {
+        for (java.io.File file : files) {
+            String cityKey = file.getName().replace(".json", "");
             try {
-                CityCorrections corr = CityCorrections.forCity(city);
-                assertNotNull(corr);
+                String content = new String(java.nio.file.Files.readAllBytes(file.toPath()));
+                // Validate it's parseable as our format
+                assertTrue(content.startsWith("{"), cityKey + ": not valid JSON object");
+                assertTrue(content.contains("\"tithi\""), cityKey + ": missing tithi section");
+                // Parse through CityCorrections
+                CityCorrections corr = CityCorrections.forCity(cityKey);
+                assertNotNull(corr, cityKey + ": returned null");
             } catch (Exception e) {
-                failures.add(city + ": " + e.getMessage());
+                failures.add(cityKey + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
             }
         }
-        assertTrue(failures.isEmpty(), "Parse failures: " + failures);
+        assertTrue(failures.isEmpty(),
+                failures.size() + " JSON files failed to parse:\n" + String.join("\n", failures));
     }
 
     @Test @DisplayName("All tithi correction values are 1-30")
