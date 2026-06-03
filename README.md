@@ -9,7 +9,7 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 - **Month resolution** — moment-based adhika/kshaya detection, Purnimant & Amant systems
 - **Date finding** — tithi → Gregorian date in any year
 - **109 cities** — per-city correction tables verified against Swiss Ephemeris
-- **Pure Java 11** — no external dependencies, works on Android/server/desktop
+- **Pure Java 17** — no external dependencies, works on Android/server/desktop
 - **200-year accuracy** — validated 1900–2100 against Drik Panchang
 
 ## Quick Start
@@ -19,22 +19,29 @@ import com.misrilibrary.tithi.*;
 import com.misrilibrary.tithi.model.*;
 import java.time.LocalDate;
 
-// Get tithi for a date
-TithiCalculator calc = new TithiCalculator(MonthSystem.PURNIMANT);
-TithiInfo info = calc.getTithi(LocalDate.of(2026, 2, 15), "Ujjain");
+Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
+
+// Date → Tithi
+TithiInfo info = panchang.forDate(LocalDate.of(2026, 2, 15), City.UJJAIN);
 System.out.println(info); // "Phalguna Krishna Trayodashi"
 
-// Find festival date
-FestivalFinder ff = new FestivalFinder("Ujjain");
-LocalDate shivaratri = ff.findDate(FestivalDef.ALL.get(0), 2026, "Ujjain");
+// Festival date
+LocalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.UJJAIN);
 System.out.println("Maha Shivaratri 2026: " + shivaratri); // 2026-02-15
 
-// Find when a tithi falls in a year
-TithiFinder finder = new TithiFinder(MonthSystem.PURNIMANT, "Seattle");
-List<LocalDate> dates = finder.findInYear(
-    LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, 2026, false);
-System.out.println("Janmashtami 2026 Seattle: " + dates.get(0));
+// Tithi → Date
+LocalDate date = panchang.getDate(LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, 2026, City.SEATTLE);
+System.out.println("Janmashtami 2026 Seattle: " + date);
 ```
+
+## API
+
+| Method | Description |
+|--------|-------------|
+| `panchang.forDate(date, city)` | Gregorian date → full TithiInfo |
+| `panchang.getDate(month, paksha, tithi, year, city)` | Tithi spec → Gregorian date |
+| `panchang.getDates(month, paksha, tithi, year, city)` | Tithi spec → all dates (adhika-aware) |
+| `panchang.dateFor(festival, year, city)` | Festival → date with muhurta rules |
 
 ## Supported Festivals
 
@@ -56,17 +63,17 @@ System.out.println("Janmashtami 2026 Seattle: " + dates.get(0));
 
 ```
 src/main/java/com/misrilibrary/tithi/
-├── TithiCalculator.java      ← Public API
+├── Panchang.java             ← Public API (single entry point)
+├── Festival.java             ← Festival definitions + registry
+├── City.java                 ← City name constants
 ├── Astronomy.java            ← Meeus Sun/Moon, sunrise/sunset
 ├── LunarMonthResolver.java   ← Month naming (adhika/kshaya/double Purnima)
-├── TithiFinder.java          ← Find tithi date in year
-├── FestivalDef.java          ← Festival registry
-├── FestivalFinder.java       ← Muhurta-aware date finding
+├── TithiFinder.java          ← Internal: find tithi date in year
 ├── TithiUtils.java           ← Names, paksha helpers
 ├── MonthConverter.java       ← Purnimant ↔ Amant
 ├── model/                    ← TithiInfo, CityLocation, enums
 └── data/
-    ├── Cities.java           ← City registry
+    ├── Cities.java           ← City registry (109 cities)
     └── CityCorrections.java  ← Lazy JSON correction loader
 
 src/main/resources/corrections/

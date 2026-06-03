@@ -13,24 +13,21 @@ class TithiCalculatorTest {
     void sunriseUjjainEquinox() {
         CityLocation loc = Cities.getLocation("Ujjain");
         LocalDateTime sr = Astronomy.computeSunrise(LocalDate.of(2026, 3, 20), loc);
-        // Ujjain equinox sunrise ~6:31 local = 1:01 UTC
         int localMin = sr.getHour() * 60 + sr.getMinute() + (int)(loc.getUtcOffset() * 60);
         assertTrue(localMin >= 385 && localMin <= 400, "Sunrise: " + localMin + " min");
     }
 
     @Test
     void tithiAtKnownDate() {
-        // Mar 19, 2026 Ujjain = Amavasya (T30)
-        TithiCalculator calc = new TithiCalculator();
-        TithiInfo info = calc.getTithi(LocalDate.of(2026, 3, 19), "Ujjain");
+        Panchang panchang = new Panchang();
+        TithiInfo info = panchang.forDate(LocalDate.of(2026, 3, 19), "Ujjain");
         assertEquals(30, info.getTithiNumber());
     }
 
     @Test
     void tithiAtPurnima() {
-        // Jul 29, 2026 Ujjain = Purnima (T15)
-        TithiCalculator calc = new TithiCalculator();
-        TithiInfo info = calc.getTithi(LocalDate.of(2026, 7, 29), "Ujjain");
+        Panchang panchang = new Panchang();
+        TithiInfo info = panchang.forDate(LocalDate.of(2026, 7, 29), "Ujjain");
         assertEquals(15, info.getTithiNumber());
     }
 
@@ -44,9 +41,9 @@ class TithiCalculatorTest {
     }
 
     @Test
-    void getTithiBasic() {
-        TithiCalculator calc = new TithiCalculator();
-        TithiInfo info = calc.getTithi(LocalDate.of(2026, 3, 20), "Ujjain");
+    void forDateBasic() {
+        Panchang panchang = new Panchang();
+        TithiInfo info = panchang.forDate(LocalDate.of(2026, 3, 20), "Ujjain");
         assertEquals(2, info.getTithiNumber());
         assertEquals("Dwitiya", info.getTithiName());
         assertEquals(Paksha.SHUKLA, info.getPaksha());

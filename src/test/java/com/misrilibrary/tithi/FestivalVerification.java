@@ -7,7 +7,7 @@ import java.util.*;
 /** Standalone verification — run with: javac + java (no JUnit needed) */
 public class FestivalVerification {
     public static void main(String[] args) {
-        FestivalFinder ff = new FestivalFinder("Ujjain");
+        Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
         var truth = Map.ofEntries(
             Map.entry("maha_shivaratri_2025", "2025-02-26"),
             Map.entry("maha_shivaratri_2026", "2026-02-15"),
@@ -26,12 +26,12 @@ public class FestivalVerification {
         );
 
         int pass = 0, fail = 0;
-        for (FestivalDef fest : FestivalDef.ALL) {
+        for (Festival fest : Festival.all()) {
             for (int year : new int[]{2025, 2026}) {
                 String key = fest.id + "_" + year;
                 String expected = truth.get(key);
                 if (expected == null) continue;
-                LocalDate got = ff.findDate(fest, year, "Ujjain");
+                LocalDate got = panchang.dateFor(fest, year, "Ujjain");
                 String gotStr = got != null ? got.toString() : "null";
                 if (gotStr.equals(expected)) {
                     pass++;

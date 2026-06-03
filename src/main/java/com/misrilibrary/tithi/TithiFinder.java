@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * Find when a tithi falls in a given year. Implements the pipeline:
  * findRaw → filterDiscardFarSpan → filterAdhikaMasa
  */
-public class TithiFinder {
+class TithiFinder {
 
     private final LunarMonthResolver resolver;
     private final String city;

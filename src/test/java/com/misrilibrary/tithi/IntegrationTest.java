@@ -11,19 +11,14 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Integration test matrix — exercises all workflows across cities × systems.
- */
 class IntegrationTest {
 
-    private final TithiCalculator calcP = new TithiCalculator(MonthSystem.PURNIMANT);
-    private final TithiCalculator calcA = new TithiCalculator(MonthSystem.AMANT);
-
-    // ═══ TEST 1: getTithi known dates ═══
+    private final Panchang panchangP = new Panchang(MonthSystem.PURNIMANT);
+    private final Panchang panchangA = new Panchang(MonthSystem.AMANT);
 
     @Test @DisplayName("Mar 19, 2026 Ujjain = Amavasya (T30)")
     void tithiMar19() {
-        TithiInfo info = calcP.getTithi(LocalDate.of(2026, 3, 19), "Ujjain");
+        TithiInfo info = panchangP.forDate(LocalDate.of(2026, 3, 19), "Ujjain");
         assertEquals(30, info.getTithiNumber());
         assertEquals("Amavasya", info.getTithiName());
         assertEquals(Paksha.KRISHNA, info.getPaksha());
@@ -31,18 +26,16 @@ class IntegrationTest {
 
     @Test @DisplayName("Jul 29, 2026 Ujjain = Purnima (T15)")
     void tithiJul29() {
-        TithiInfo info = calcP.getTithi(LocalDate.of(2026, 7, 29), "Ujjain");
+        TithiInfo info = panchangP.forDate(LocalDate.of(2026, 7, 29), "Ujjain");
         assertEquals(15, info.getTithiNumber());
     }
 
     @Test @DisplayName("May 20, 2026 Ujjain = Adhika Jyeshtha")
     void adhikMonth() {
-        TithiInfo info = calcP.getTithi(LocalDate.of(2026, 5, 20), "Ujjain");
+        TithiInfo info = panchangP.forDate(LocalDate.of(2026, 5, 20), "Ujjain");
         assertEquals(LunarMonth.JYESHTHA, info.getMonth());
         assertTrue(info.isAdhika());
     }
-
-    // ═══ TEST 2: System consistency ═══
 
     @Test @DisplayName("Purnimant and Amant give same tithi number")
     void systemConsistency() {
@@ -50,24 +43,22 @@ class IntegrationTest {
             for (LocalDate dt : new LocalDate[]{
                     LocalDate.of(2026, 3, 20), LocalDate.of(2026, 5, 20),
                     LocalDate.of(2026, 9, 4), LocalDate.of(2026, 11, 9)}) {
-                TithiInfo p = calcP.getTithi(dt, city);
-                TithiInfo a = calcA.getTithi(dt, city);
+                TithiInfo p = panchangP.forDate(dt, city);
+                TithiInfo a = panchangA.forDate(dt, city);
                 assertEquals(p.getTithiNumber(), a.getTithiNumber(),
                         city + " " + dt + ": P=T" + p.getTithiNumber() + " A=T" + a.getTithiNumber());
             }
         }
     }
 
-    // ═══ TEST 3: Month boundaries ═══
-
     @Test @DisplayName("K.1 after Purnima = next month (Purnimant, 2026)")
     void monthBoundariesPurnimant() {
         for (String city : new String[]{"Ujjain", "Srinagar", "Seattle"}) {
             for (LocalDate d = LocalDate.of(2026, 1, 1); d.getYear() == 2026; d = d.plusDays(1)) {
-                TithiInfo info = calcP.getTithi(d, city);
+                TithiInfo info = panchangP.forDate(d, city);
                 if (info.getTithiNumber() == 15 && !info.isAdhika()) {
                     LocalDate next = d.plusDays(1);
-                    TithiInfo nextInfo = calcP.getTithi(next, city);
+                    TithiInfo nextInfo = panchangP.forDate(next, city);
                     if (nextInfo.getPaksha() == Paksha.KRISHNA) {
                         LunarMonth expected = info.getMonth().next();
                         assertEquals(expected, nextInfo.getMonth(),
@@ -78,11 +69,8 @@ class IntegrationTest {
         }
     }
 
-    // ═══ TEST 4: Festival dates ═══
-
     @Test @DisplayName("Festival dates match Drik Panchang")
     void festivalDates() {
-        FestivalFinder ff = new FestivalFinder("Ujjain");
         record Expected(String id, int year, String date) {}
         var truth = List.of(
             new Expected("maha_shivaratri", 2025, "2025-02-26"),
@@ -93,14 +81,12 @@ class IntegrationTest {
             new Expected("diwali", 2026, "2026-11-08")
         );
         for (var exp : truth) {
-            FestivalDef fest = FestivalDef.ALL.stream().filter(f -> f.id.equals(exp.id)).findFirst().orElseThrow();
-            LocalDate got = ff.findDate(fest, exp.year, "Ujjain");
+            Festival fest = Festival.all().stream().filter(f -> f.id.equals(exp.id)).findFirst().orElseThrow();
+            LocalDate got = panchangP.dateFor(fest, exp.year, "Ujjain");
             assertNotNull(got, exp.id + " " + exp.year);
             assertEquals(exp.date, got.toString(), exp.id + " " + exp.year);
         }
     }
-
-    // ═══ TEST 5: Sunrise sanity ═══
 
     @Test @DisplayName("Tokyo sunrise day-carry")
     void tokyoDayCarry() {
@@ -122,18 +108,14 @@ class IntegrationTest {
         assertTrue(localMin >= 385 && localMin <= 400, "Equinox sunrise: " + localMin);
     }
 
-    // ═══ TEST 6: Round-trip ═══
-
-    @Test @DisplayName("getTithi → findInYear returns consistent date")
+    @Test @DisplayName("forDate → getDates round-trip")
     void roundTrip() {
-        TithiFinder finder = new TithiFinder(MonthSystem.PURNIMANT, "Ujjain");
         LocalDate dt = LocalDate.of(2026, 8, 16);
-        TithiInfo info = calcP.getTithi(dt, "Ujjain");
-        List<LocalDate> found = finder.findInYear(info.getMonth(), info.getPaksha(),
-                info.getTithiInPaksha(), 2026, info.isAdhika());
+        TithiInfo info = panchangP.forDate(dt, "Ujjain");
+        List<LocalDate> found = panchangP.getDates(info.getMonth(), info.getPaksha(),
+                info.getTithiInPaksha(), 2026, "Ujjain");
         assertFalse(found.isEmpty(), "No date found");
-        // Verify found date has same tithi
-        TithiInfo verify = calcP.getTithi(found.get(0), "Ujjain");
+        TithiInfo verify = panchangP.forDate(found.get(0), "Ujjain");
         assertEquals(info.getTithiNumber(), verify.getTithiNumber());
         assertEquals(info.getMonth(), verify.getMonth());
     }
