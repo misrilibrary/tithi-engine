@@ -28,6 +28,8 @@ test {
     finalizedBy jacocoTestReport
 }
 
+jar.dependsOn test
+
 jacocoTestReport {
     dependsOn test
     reports {
