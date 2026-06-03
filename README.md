@@ -59,6 +59,47 @@ System.out.println("Janmashtami 2026 Seattle: " + date);
 | Vijayadashami | Sunrise |
 | Diwali / Lakshmi Puja | Pradosh (evening) |
 
+## Extensibility
+
+### Adding a Festival
+
+1. Open `Festival.java`
+2. Add a constant:
+   ```java
+   public static final Festival KARVA_CHAUTH = new Festival(
+       "karva_chauth", "Karva Chauth",
+       LunarMonth.KARTIKA, Paksha.KRISHNA, 4, MuhurtaRule.PRADOSH);
+   ```
+3. Add it to the `ALL` list (same file, bottom):
+   ```java
+   private static final List<Festival> ALL = List.of(
+       ...,
+       KARVA_CHAUTH  // ← add here
+   );
+   ```
+4. Run `gradle test` — `ExtensibilityGuardTest` will fail if you forget step 3.
+
+### Adding a City
+
+Two files must stay in sync:
+
+1. **`data/Cities.java`** — add the city with coordinates:
+   ```java
+   CITIES.put("Rishikesh", new CityLocation(30.1, 78.3, 5.5));
+   ```
+2. **`City.java`** — add a constant for autocomplete:
+   ```java
+   public static final String RISHIKESH = "Rishikesh";
+   ```
+3. *(Optional)* Add a `src/main/resources/corrections/rishikesh.json` for Swiss Ephemeris-level accuracy. Without it, Meeus fallback gives ~99.9%.
+
+4. Run `gradle test` — `ExtensibilityGuardTest` will fail if the two files are out of sync.
+
+### Adding a Muhurta Rule
+
+1. Add to the `MuhurtaRule` enum
+2. Handle the new case in `Panchang.muhurtaUtc()` switch statement
+
 ## Architecture
 
 ```
