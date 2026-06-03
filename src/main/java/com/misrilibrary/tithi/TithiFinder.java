@@ -1,6 +1,5 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.data.Cities;
 import com.misrilibrary.tithi.model.*;
 
 import java.time.LocalDate;
@@ -27,7 +26,7 @@ class TithiFinder {
     public List<LocalDate> findInYear(LunarMonth month, Paksha paksha, int tithiInPaksha,
                                        int year, boolean isAdhika) {
         int targetTithi = paksha == Paksha.SHUKLA ? tithiInPaksha : tithiInPaksha + 15;
-        CityLocation loc = Cities.getLocation(city);
+        CityLocation loc = City.getLocation(city);
 
         List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(year);
         List<LunarMonthResolver.MonthSpan> prevSpans = resolver.getSpansForYear(year - 1);

@@ -1,6 +1,5 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.data.Cities;
 import com.misrilibrary.tithi.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -90,7 +89,7 @@ class IntegrationTest {
 
     @Test @DisplayName("Tokyo sunrise day-carry")
     void tokyoDayCarry() {
-        CityLocation loc = Cities.getLocation("Tokyo");
+        CityLocation loc = City.getLocation("Tokyo");
         for (LocalDate dt : new LocalDate[]{
                 LocalDate.of(2026, 6, 21), LocalDate.of(2026, 12, 21)}) {
             LocalDateTime sr = Astronomy.computeSunrise(dt, loc);
@@ -102,7 +101,7 @@ class IntegrationTest {
 
     @Test @DisplayName("Ujjain sunrise in reasonable range")
     void ujjainSunrise() {
-        CityLocation loc = Cities.getLocation("Ujjain");
+        CityLocation loc = City.getLocation("Ujjain");
         LocalDateTime sr = Astronomy.computeSunrise(LocalDate.of(2026, 3, 20), loc);
         int localMin = sr.getHour() * 60 + sr.getMinute() + (int)(loc.getUtcOffset() * 60);
         assertTrue(localMin >= 385 && localMin <= 400, "Equinox sunrise: " + localMin);

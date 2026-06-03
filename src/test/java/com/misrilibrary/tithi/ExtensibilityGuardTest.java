@@ -1,6 +1,5 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.data.Cities;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -23,7 +22,6 @@ class ExtensibilityGuardTest {
     @Test
     @DisplayName("Every Festival constant must appear in Festival.all()")
     void allFestivalConstantsRegistered() {
-        // Find all public static final Festival fields on the Festival class
         List<String> declaredConstants = new ArrayList<>();
         for (Field f : Festival.class.getDeclaredFields()) {
             if (Modifier.isPublic(f.getModifiers())
@@ -60,9 +58,9 @@ class ExtensibilityGuardTest {
     }
 
     @Test
-    @DisplayName("Every City constant must exist in Cities registry")
+    @DisplayName("Every City String constant must be in City.supported()")
     void allCityConstantsRegistered() {
-        Set<String> supportedCities = Cities.getSupportedCities();
+        Set<String> supported = City.supported();
 
         List<String> missing = new ArrayList<>();
         for (Field f : City.class.getDeclaredFields()) {
@@ -72,7 +70,7 @@ class ExtensibilityGuardTest {
                     && f.getType() == String.class) {
                 try {
                     String value = (String) f.get(null);
-                    if (!supportedCities.contains(value)) {
+                    if (!supported.contains(value)) {
                         missing.add(f.getName() + " = \"" + value + "\"");
                     }
                 } catch (Exception e) {
@@ -82,35 +80,8 @@ class ExtensibilityGuardTest {
         }
 
         assertTrue(missing.isEmpty(),
-                "City constants declared but NOT in Cities registry: " + missing + "\n\n"
-                + "HOW TO FIX: Open data/Cities.java and add a CITIES.put(...) entry:\n"
-                + "    CITIES.put(\"YourCity\", new CityLocation(lat, lon, utcOffset));\n");
-    }
-
-    @Test
-    @DisplayName("Every city in Cities registry should have a City constant")
-    void allRegisteredCitiesHaveConstants() {
-        Set<String> constantValues = new HashSet<>();
-        for (Field f : City.class.getDeclaredFields()) {
-            if (Modifier.isPublic(f.getModifiers())
-                    && Modifier.isStatic(f.getModifiers())
-                    && Modifier.isFinal(f.getModifiers())
-                    && f.getType() == String.class) {
-                try {
-                    constantValues.add((String) f.get(null));
-                } catch (Exception ignored) {}
-            }
-        }
-
-        Set<String> supportedCities = Cities.getSupportedCities();
-        List<String> missing = supportedCities.stream()
-                .filter(city -> !constantValues.contains(city))
-                .sorted()
-                .collect(Collectors.toList());
-
-        assertTrue(missing.isEmpty(),
-                "Cities in registry but missing a City.java constant: " + missing + "\n\n"
-                + "HOW TO FIX: Open City.java and add a constant:\n"
-                + "    public static final String YOUR_CITY = \"Your City\";\n");
+                "City constants declared but NOT registered: " + missing + "\n\n"
+                + "HOW TO FIX: In City.java, use reg() to declare your constant:\n"
+                + "    public static final String YOUR_CITY = reg(\"Your City\", lat, lon, utcOffset);\n");
     }
 }

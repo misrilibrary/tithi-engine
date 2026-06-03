@@ -1,6 +1,5 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.data.Cities;
 import com.misrilibrary.tithi.data.CityCorrections;
 import com.misrilibrary.tithi.model.*;
 
@@ -27,7 +26,7 @@ public class LunarMonthResolver {
     }
 
     public LunarMonthResolver(MonthSystem system) {
-        this(system, Cities.DEFAULT_CITY);
+        this(system, City.DEFAULT);
     }
 
     /** Get the month info for a specific date. */
@@ -55,7 +54,7 @@ public class LunarMonthResolver {
     }
 
     private List<MonthSpan> buildSpans(int year) {
-        CityLocation loc = Cities.getLocation(city);
+        CityLocation loc = City.getLocation(city);
         CityCorrections corr = CityCorrections.forCity(city);
 
         LocalDate scanStart = LocalDate.of(year - 1, 10, 1);

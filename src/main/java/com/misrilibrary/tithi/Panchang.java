@@ -1,6 +1,5 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.data.Cities;
 import com.misrilibrary.tithi.data.CityCorrections;
 import com.misrilibrary.tithi.model.*;
 
@@ -32,7 +31,7 @@ public class Panchang {
 
     /** Convert a Gregorian date to its Hindu lunar tithi. */
     public TithiInfo forDate(LocalDate date, String city) {
-        CityLocation loc = Cities.getLocation(city);
+        CityLocation loc = City.getLocation(city);
         CityCorrections corr = CityCorrections.forCity(city);
         int dayIndex = (int) EPOCH.until(date, java.time.temporal.ChronoUnit.DAYS);
 
@@ -80,7 +79,7 @@ public class Panchang {
         LocalDate d = dates.get(0);
 
         if (fest.muhurta != MuhurtaRule.SUNRISE) {
-            CityLocation loc = Cities.getLocation(city);
+            CityLocation loc = City.getLocation(city);
             LocalDate prev = d.minusDays(1);
             LocalDateTime muhurtaTime = muhurtaUtc(prev, loc, fest.muhurta);
             int tithiAtMuhurta = Astronomy.tithiAt(muhurtaTime);

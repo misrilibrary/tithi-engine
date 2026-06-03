@@ -81,19 +81,17 @@ System.out.println("Janmashtami 2026 Seattle: " + date);
 
 ### Adding a City
 
-Two files must stay in sync:
+One file: `City.java`. Add a single line using `reg()`:
 
-1. **`data/Cities.java`** — add the city with coordinates:
-   ```java
-   CITIES.put("Rishikesh", new CityLocation(30.1, 78.3, 5.5));
-   ```
-2. **`City.java`** — add a constant for autocomplete:
-   ```java
-   public static final String RISHIKESH = "Rishikesh";
-   ```
-3. *(Optional)* Add a `src/main/resources/corrections/rishikesh.json` for Swiss Ephemeris-level accuracy. Without it, Meeus fallback gives ~99.9%.
+```java
+public static final String RISHIKESH = reg("Rishikesh", 30.1, 78.3, 5.5);
+```
 
-4. Run `gradle test` — `ExtensibilityGuardTest` will fail if the two files are out of sync.
+This simultaneously creates the constant and registers the city with coordinates. That's it.
+
+*(Optional)* Add a `src/main/resources/corrections/rishikesh.json` for Swiss Ephemeris-level accuracy. Without it, Meeus fallback gives ~99.9%.
+
+Run `gradle test` — `ExtensibilityGuardTest` will fail if you declare a constant without using `reg()`.
 
 ### Adding a Muhurta Rule
 
@@ -106,7 +104,7 @@ Two files must stay in sync:
 src/main/java/com/misrilibrary/tithi/
 ├── Panchang.java             ← Public API (single entry point)
 ├── Festival.java             ← Festival definitions + registry
-├── City.java                 ← City name constants
+├── City.java                 ← City constants + registry (single file)
 ├── Astronomy.java            ← Meeus Sun/Moon, sunrise/sunset
 ├── LunarMonthResolver.java   ← Month naming (adhika/kshaya/double Purnima)
 ├── TithiFinder.java          ← Internal: find tithi date in year
@@ -114,7 +112,6 @@ src/main/java/com/misrilibrary/tithi/
 ├── MonthConverter.java       ← Purnimant ↔ Amant
 ├── model/                    ← TithiInfo, CityLocation, enums
 └── data/
-    ├── Cities.java           ← City registry (109 cities)
     └── CityCorrections.java  ← Lazy JSON correction loader
 
 src/main/resources/corrections/

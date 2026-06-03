@@ -1,6 +1,5 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.data.Cities;
 import com.misrilibrary.tithi.model.*;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
@@ -11,7 +10,7 @@ class TithiCalculatorTest {
 
     @Test
     void sunriseUjjainEquinox() {
-        CityLocation loc = Cities.getLocation("Ujjain");
+        CityLocation loc = City.getLocation("Ujjain");
         LocalDateTime sr = Astronomy.computeSunrise(LocalDate.of(2026, 3, 20), loc);
         int localMin = sr.getHour() * 60 + sr.getMinute() + (int)(loc.getUtcOffset() * 60);
         assertTrue(localMin >= 385 && localMin <= 400, "Sunrise: " + localMin + " min");
@@ -33,7 +32,7 @@ class TithiCalculatorTest {
 
     @Test
     void tokyoSunriseDayCarry() {
-        CityLocation loc = Cities.getLocation("Tokyo");
+        CityLocation loc = City.getLocation("Tokyo");
         LocalDateTime sr = Astronomy.computeSunrise(LocalDate.of(2026, 6, 21), loc);
         LocalDateTime local = sr.plusMinutes((long)(loc.getUtcOffset() * 60));
         assertEquals(21, local.getDayOfMonth(), "Tokyo sunrise on wrong day");
