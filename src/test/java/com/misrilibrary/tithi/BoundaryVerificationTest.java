@@ -190,7 +190,9 @@ class BoundaryVerificationTest {
         var expected = Map.ofEntries(
             Map.entry(2010, "Vaishakha"),
             Map.entry(2015, "Ashadha"),
+            Map.entry(2020, "Ashvina"),
             Map.entry(2023, "Shravana"),
+            Map.entry(2026, "Jyeshtha"),
             Map.entry(2029, "Chaitra")
         );
         expected.forEach((year, monthName) -> {
@@ -202,6 +204,103 @@ class BoundaryVerificationTest {
             assertTrue(adhikaMonths.contains(monthName),
                     year + ": expected Adhika " + monthName + " but got " + adhikaMonths);
         });
+    }
+
+    // ═══ KSHAYA YEAR 1963 (from tithi_integration_test.dart) ═══
+
+    @Test
+    @DisplayName("1963 kshaya year: Margashirsha absent in Amant, Adhika Kartika present")
+    void kshayaYear1963() {
+        Set<String> months = new HashSet<>();
+        for (LocalDate d = LocalDate.of(1963, 1, 1); d.getYear() == 1963; d = d.plusDays(1)) {
+            TithiInfo info = panchangA.forDate(d, "Ujjain");
+            String label = (info.isAdhika() ? "A." : "") + info.getMonth().getDisplayName();
+            months.add(label);
+        }
+        assertFalse(months.contains("Margashirsha"),
+                "1963 is a kshaya year — Margashirsha should be absent in Amant");
+        assertTrue(months.contains("A.Kartika"),
+                "1963 should have Adhika Kartika");
+    }
+
+    // ═══ KNOWN HISTORICAL DATES (from tithi_integration_test.dart) ═══
+
+    @Test
+    @DisplayName("Known historical dates verified against Drik Panchang")
+    void knownHistoricalDates() {
+        // [date, city, expectedTithi, expectedMonth, isAdhika]
+        Object[][] cases = {
+            {LocalDate.of(2026, 5, 20), "Ujjain", 4, LunarMonth.JYESHTHA, true},
+            {LocalDate.of(2026, 3, 19), "Ujjain", 30, LunarMonth.CHAITRA, false},
+            {LocalDate.of(2026, 7, 29), "Ujjain", 15, LunarMonth.ASHADHA, false},
+            {LocalDate.of(2026, 2, 15), "Ujjain", 28, LunarMonth.PHALGUNA, false},
+            {LocalDate.of(2026, 11, 8), "Ujjain", 29, LunarMonth.KARTIKA, false},
+            {LocalDate.of(1963, 10, 30), "Ujjain", 13, LunarMonth.KARTIKA, true},
+        };
+        for (Object[] c : cases) {
+            LocalDate date = (LocalDate) c[0];
+            String city = (String) c[1];
+            int expectedTithi = (int) c[2];
+            LunarMonth expectedMonth = (LunarMonth) c[3];
+            boolean expectedAdhika = (boolean) c[4];
+            TithiInfo info = panchangP.forDate(date, city);
+            assertEquals(expectedTithi, info.getTithiNumber(),
+                    date + " " + city + ": tithi");
+            assertEquals(expectedMonth, info.getMonth(),
+                    date + " " + city + ": month");
+            assertEquals(expectedAdhika, info.isAdhika(),
+                    date + " " + city + ": adhika");
+        }
+    }
+
+    // ═══ BOUNDARY REGRESSIONS — specific dates (from tithi_integration_test.dart) ═══
+
+    @Test
+    @DisplayName("Boundary regression: specific dates across years")
+    void boundaryRegressions() {
+        Object[][] cases = {
+            {LocalDate.of(2080, 9, 29), "Ujjain", LunarMonth.BHADRAPADA},
+            {LocalDate.of(2026, 6, 30), "Delhi", LunarMonth.JYESHTHA},
+            {LocalDate.of(2026, 4, 2), "Seattle", LunarMonth.VAISHAKHA},
+            {LocalDate.of(2010, 10, 23), "Kolkata", LunarMonth.ASHVINA},
+        };
+        for (Object[] c : cases) {
+            LocalDate date = (LocalDate) c[0];
+            String city = (String) c[1];
+            LunarMonth expectedMonth = (LunarMonth) c[2];
+            TithiInfo info = panchangP.forDate(date, city);
+            assertEquals(expectedMonth, info.getMonth(),
+                    date + " " + city + ": expected " + expectedMonth.getDisplayName()
+                    + " got " + info.getMonth().getDisplayName());
+        }
+    }
+
+    // ═══ ROUND-TRIP across cities and systems (from tithi_integration_test.dart) ═══
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Ujjain", "Delhi", "Srinagar", "Seattle", "London", "Sydney", "Tokyo"})
+    @DisplayName("Round-trip forDate → getDate (7 cities × both systems)")
+    void roundTripMultiCity(String city) {
+        LocalDate[] dates = {
+            LocalDate.of(2026, 1, 15), LocalDate.of(2026, 4, 20),
+            LocalDate.of(2026, 8, 16), LocalDate.of(2026, 11, 8),
+            LocalDate.of(2025, 10, 20)
+        };
+        for (Panchang panchang : new Panchang[]{panchangP, panchangA}) {
+            for (LocalDate dt : dates) {
+                TithiInfo info = panchang.forDate(dt, city);
+                // Use getDate for non-adhika months
+                if (!info.isAdhika()) {
+                    LocalDate found = panchang.getDate(info.getMonth(), info.getPaksha(),
+                            info.getTithiInPaksha(), dt.getYear(), city);
+                    TithiInfo fi = panchang.forDate(found, city);
+                    assertEquals(info.getTithiNumber(), fi.getTithiNumber(),
+                            city + " " + dt + " " + panchang.getMonthSystem() + ": tithi mismatch");
+                    assertEquals(info.getMonth(), fi.getMonth(),
+                            city + " " + dt + " " + panchang.getMonthSystem() + ": month mismatch");
+                }
+            }
+        }
     }
 
     // ═══ NO MONTH SILENTLY SKIPPED (from tithi_regression_test.dart) ═══
