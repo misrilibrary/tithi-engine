@@ -1,2 +1,4 @@
-build/\n.gradle/\n*.class
+build/
 .gradle/
+.idea/
+*.class
