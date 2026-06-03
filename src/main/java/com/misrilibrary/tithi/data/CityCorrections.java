@@ -2,6 +2,7 @@ package com.misrilibrary.tithi.data;
 
 import com.misrilibrary.tithi.model.CityLocation;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -30,10 +31,10 @@ public class CityCorrections {
         return cache.computeIfAbsent(key, CityCorrections::load);
     }
 
-    public Map<Integer, Integer> getTithiCorrections() { return tithiCorrections; }
-    public Map<Integer, Integer> getTransitionMinutes() { return transitionMinutes; }
-    public Map<Integer, Integer> getPurnimaCorrections() { return purnimaCorrections; }
-    public Map<Integer, Integer> getAmavasyaCorrections() { return amavasyaCorrections; }
+    public Map<Integer, Integer> getTithiCorrections() { return Collections.unmodifiableMap(tithiCorrections); }
+    public Map<Integer, Integer> getTransitionMinutes() { return Collections.unmodifiableMap(transitionMinutes); }
+    public Map<Integer, Integer> getPurnimaCorrections() { return Collections.unmodifiableMap(purnimaCorrections); }
+    public Map<Integer, Integer> getAmavasyaCorrections() { return Collections.unmodifiableMap(amavasyaCorrections); }
 
     public Integer getCorrectedTithi(int dayIndex) { return tithiCorrections.get(dayIndex); }
     public Integer getCorrectedPurnima(int dayIndex) { return purnimaCorrections.get(dayIndex); }
@@ -45,15 +46,13 @@ public class CityCorrections {
         Map<Integer, Integer> purnima = new HashMap<>();
         Map<Integer, Integer> amavasya = new HashMap<>();
 
-        try {
-            InputStream is = CityCorrections.class.getResourceAsStream("/corrections/" + cityKey + ".json");
+        try (InputStream is = CityCorrections.class.getResourceAsStream("/corrections/" + cityKey + ".json")) {
             if (is != null) {
-                String json = new String(is.readAllBytes());
+                String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 tithi = parseSection(json, "tithi");
                 transitions = parseSection(json, "transitions");
                 purnima = parseSection(json, "purnima");
                 amavasya = parseSection(json, "amavasya");
-                is.close();
             }
         } catch (IOException e) {
             // No corrections available — use empty maps (Meeus fallback)

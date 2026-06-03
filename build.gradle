@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'jacoco'
+    id 'com.github.spotbugs' version '6.0.9'
 }
 
 group = 'com.misrilibrary'
@@ -29,5 +30,20 @@ jacocoTestReport {
     reports {
         xml.required = true
         html.required = true
+    }
+}
+
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.Confidence
+
+spotbugs {
+    effort = Effort.valueOf('MAX')
+    reportLevel = Confidence.valueOf('MEDIUM')
+}
+
+spotbugsMain {
+    reports {
+        html.required = true
+        xml.required = false
     }
 }
