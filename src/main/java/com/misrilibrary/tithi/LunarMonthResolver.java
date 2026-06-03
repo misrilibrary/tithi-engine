@@ -31,13 +31,7 @@ public class LunarMonthResolver {
 
     /** Get the month info for a specific date. */
     public MonthInfo getMonthInfo(LocalDate date) {
-        List<MonthSpan> spans = getSpansForYear(date.getYear());
-        for (MonthSpan span : spans) {
-            if (!date.isBefore(span.start) && date.isBefore(span.end)) {
-                return new MonthInfo(span.month, span.adhika);
-            }
-        }
-        // Fallback: check adjacent years
+        // Check current year, then adjacent years (spans overlap year boundaries)
         for (int y = date.getYear() - 1; y <= date.getYear() + 1; y++) {
             for (MonthSpan span : getSpansForYear(y)) {
                 if (!date.isBefore(span.start) && date.isBefore(span.end)) {

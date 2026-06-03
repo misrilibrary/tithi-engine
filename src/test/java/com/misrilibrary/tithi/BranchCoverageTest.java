@@ -119,20 +119,25 @@ class BranchCoverageTest {
 
     // ═══ LunarMonthResolver.correctAmavasya/correctPurnima: correction applied ═══
 
-    @Test @DisplayName("Purnima correction applied for boundary city")
+    @Test @DisplayName("Purnima correction applied — exercises corrected != null return")
     void purnimaCorrection() {
-        // Srinagar has boundary corrections — exercise the non-null path
         CityCorrections corr = CityCorrections.forCity("Srinagar");
-        // Check that at least some purnima corrections exist
-        assertFalse(corr.getPurnimaCorrections().isEmpty(),
-                "Srinagar should have purnima corrections");
+        assertFalse(corr.getPurnimaCorrections().isEmpty());
+        // Run the resolver for Srinagar — it will call correctPurnima internally
+        // and hit the non-null path for dates in the correction table
+        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.PURNIMANT, "Srinagar");
+        List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(2026);
+        assertFalse(spans.isEmpty());
     }
 
-    @Test @DisplayName("Amavasya correction applied for boundary city")
+    @Test @DisplayName("Amavasya correction applied — exercises corrected != null return")
     void amavasyaCorrection() {
         CityCorrections corr = CityCorrections.forCity("Srinagar");
-        assertFalse(corr.getAmavasyaCorrections().isEmpty(),
-                "Srinagar should have amavasya corrections");
+        assertFalse(corr.getAmavasyaCorrections().isEmpty());
+        // Amant system uses amavasya boundaries — forces correctAmavasya calls
+        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.AMANT, "Srinagar");
+        List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(2026);
+        assertFalse(spans.isEmpty());
     }
 
     // ═══ TithiFinder.filterDiscardFarSpan: multiple matches ═══
