@@ -12,7 +12,7 @@ import java.util.*;
  * Resolves the lunar month for any given date using moment-based sankranti assignment.
  * Handles adhika (intercalary), kshaya (dropped), and double Purnima/Amavasya.
  */
-public class LunarMonthResolver {
+class LunarMonthResolver {
 
     private static final LocalDate EPOCH = LocalDate.of(1900, 1, 1);
 

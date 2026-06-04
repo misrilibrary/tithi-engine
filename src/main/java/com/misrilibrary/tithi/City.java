@@ -191,11 +191,13 @@ public final class City {
 
     // ─── Registry methods ───
 
+    /** Look up coordinates for a city name. Returns {@link #DEFAULT} location if not found. */
     public static CityLocation getLocation(String city) {
         CityLocation loc = LOCATIONS.get(city);
         return loc != null ? loc : LOCATIONS.get(DEFAULT);
     }
 
+    /** All registered city names (unmodifiable). */
     public static Set<String> supported() {
         return Collections.unmodifiableSet(LOCATIONS.keySet());
     }

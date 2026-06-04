@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 /**
  * Meeus astronomical algorithms for Sun/Moon ecliptic longitude and sunrise/sunset.
  */
-public class Astronomy {
+class Astronomy {
 
     private static final double DEG2RAD = Math.PI / 180.0;
     private static final double RAD2DEG = 180.0 / Math.PI;

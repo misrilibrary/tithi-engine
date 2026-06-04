@@ -6,7 +6,7 @@ import com.misrilibrary.tithi.model.*;
  * Convert lunar month between Purnimant and Amant systems.
  * Only Krishna Paksha differs: Purnimant assigns it to the NEXT month.
  */
-public class MonthConverter {
+class MonthConverter {
 
     public static LunarMonth convert(LunarMonth month, Paksha paksha, MonthSystem from, MonthSystem to) {
         if (from == to) return month;

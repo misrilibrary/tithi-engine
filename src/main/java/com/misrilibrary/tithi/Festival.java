@@ -3,13 +3,27 @@ package com.misrilibrary.tithi;
 import com.misrilibrary.tithi.model.*;
 import java.util.*;
 
-/** A Hindu festival definition: tithi spec + muhurta rule. */
+/**
+ * A Hindu festival definition: lunar month, paksha, tithi, and the muhurta rule
+ * that determines which Gregorian date the festival falls on.
+ *
+ * <p>Use the pre-defined constants (e.g. {@code Festival.DIWALI}) or create custom
+ * festivals with the public constructor.
+ *
+ * @see com.misrilibrary.tithi.Panchang#dateFor(Festival, int, String)
+ */
 public class Festival {
+    /** Short identifier (e.g. "maha_shivaratri"). */
     public final String id;
+    /** Human-readable name (e.g. "Maha Shivaratri"). */
     public final String name;
+    /** Lunar month in which the festival falls (Purnimant convention). */
     public final LunarMonth month;
+    /** Fortnight (Shukla or Krishna). */
     public final Paksha paksha;
+    /** Tithi number within the paksha (1–15). */
     public final int tithiInPaksha;
+    /** Rule for picking the correct Gregorian date when the tithi spans two days. */
     public final MuhurtaRule muhurta;
 
     public Festival(String id, String name, LunarMonth month, Paksha paksha, int tithiInPaksha, MuhurtaRule muhurta) {
@@ -17,6 +31,7 @@ public class Festival {
         this.tithiInPaksha = tithiInPaksha; this.muhurta = muhurta;
     }
 
+    /** Absolute tithi number (1–30) derived from paksha + tithiInPaksha. */
     public int getTithiNumber() { return paksha == Paksha.SHUKLA ? tithiInPaksha : tithiInPaksha + 15; }
 
     public static final Festival MAHA_SHIVARATRI = new Festival("maha_shivaratri", "Maha Shivaratri", LunarMonth.PHALGUNA, Paksha.KRISHNA, 14, MuhurtaRule.NISHITA);
@@ -37,5 +52,6 @@ public class Festival {
         GANESH_CHATURTHI, VIJAYADASHAMI, DIWALI
     );
 
+    /** All built-in festival definitions. */
     public static List<Festival> all() { return ALL; }
 }

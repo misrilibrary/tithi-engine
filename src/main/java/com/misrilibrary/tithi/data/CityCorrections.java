@@ -8,6 +8,8 @@ import java.util.*;
 /**
  * Loads and caches per-city correction tables from classpath JSON resources.
  * Format: {"tithi":{dayIndex:correctedTithi,...},"purnima":{from:to,...},"amavasya":{from:to,...}}
+ *
+ * <p><b>Internal use only</b> — this class is not part of the public API and may change without notice.
  */
 public class CityCorrections {
 

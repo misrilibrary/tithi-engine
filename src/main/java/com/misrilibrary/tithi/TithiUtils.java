@@ -2,7 +2,7 @@ package com.misrilibrary.tithi;
 
 import com.misrilibrary.tithi.model.Paksha;
 
-public class TithiUtils {
+class TithiUtils {
 
     private static final String[] TITHI_NAMES = {
         "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
