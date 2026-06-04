@@ -153,6 +153,7 @@ src/main/resources/corrections/
 | Month boundaries (Purnimant) | 100% (200 years, verified cities) |
 | Festival dates vs Drik Panchang | 22/22 (2025–2026) |
 | Meeus fallback (no correction table) | ~99.9% |
+| Test coverage | 123 tests, 98%+ line, 86%+ branch |
 
 > **Note:** The Maven group ID is `io.github.misrilibrary` but the Java package is `com.misrilibrary.tithi`. This is intentional and standard practice — the two don't need to match.
 
