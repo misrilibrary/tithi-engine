@@ -1,0 +1,22 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+    // During development, use local build:
+    mavenLocal()
+}
+
+dependencies {
+    implementation 'io.github.misrilibrary:tithi-engine:1.0.0'
+}
+
+application {
+    mainClass = 'Example'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}

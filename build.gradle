@@ -93,6 +93,7 @@ signing {
         useInMemoryPgpKeys(findProperty('signingKeyId'), signingKey, findProperty('signingPassword'))
     }
     sign publishing.publications.mavenJava
+    required { gradle.taskGraph.hasTask('publish') }
 }
 
 import com.github.spotbugs.snom.Effort
