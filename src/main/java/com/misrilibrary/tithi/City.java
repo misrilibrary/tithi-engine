@@ -191,13 +191,20 @@ public final class City {
 
     // ─── Registry methods ───
 
-    /** Look up coordinates for a city name. Returns {@link #DEFAULT} location if not found. */
+    /**
+     * Look up coordinates for a city name.
+     * @param city registered city name (e.g. {@code City.SEATTLE})
+     * @return location data, or {@link #DEFAULT} location if not found
+     */
     public static CityLocation getLocation(String city) {
         CityLocation loc = LOCATIONS.get(city);
         return loc != null ? loc : LOCATIONS.get(DEFAULT);
     }
 
-    /** All registered city names (unmodifiable). */
+    /**
+     * All registered city names (unmodifiable).
+     * @return set of city name strings
+     */
     public static Set<String> supported() {
         return Collections.unmodifiableSet(LOCATIONS.keySet());
     }
