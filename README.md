@@ -154,6 +154,8 @@ src/main/resources/corrections/
 | Festival dates vs Drik Panchang | 22/22 (2025–2026) |
 | Meeus fallback (no correction table) | ~99.9% |
 
+> **Note:** The Maven group ID is `io.github.misrilibrary` but the Java package is `com.misrilibrary.tithi`. This is intentional and standard practice — the two don't need to match.
+
 ## Building
 
 ```bash

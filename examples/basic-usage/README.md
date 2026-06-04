@@ -26,7 +26,7 @@ Maha Shivaratri 2026 (Ujjain): 2026-02-15
 Diwali 2026 (Seattle): 2026-10-20
 Janmashtami 2026 (Seattle): 2026-08-14
 
-Supported cities (109):
+Supported cities (157):
 Agra, Ahmedabad, Allahabad, ...
 
 Festivals 2026 (Ujjain):
