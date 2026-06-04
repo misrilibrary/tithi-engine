@@ -1,4 +1,21 @@
+# Build
 build/
-.gradle/
-.idea/
+out/
 *.class
+
+# Gradle
+.gradle/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Example project build artifacts
+examples/*/build/
+examples/*/.gradle/

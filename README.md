@@ -1,5 +1,8 @@
 # tithi-engine
 
+[![CI](https://github.com/misrilibrary/tithi-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/misrilibrary/tithi-engine/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Computes accurate tithis, lunar months, and festival dates for any city worldwide.
 
 ## Features
@@ -8,9 +11,30 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 - **Festival dates** — muhurta-accurate (nishita, madhyahna, pradosh rules)
 - **Month resolution** — moment-based adhika/kshaya detection, Purnimant & Amant systems
 - **Date finding** — tithi → Gregorian date in any year
-- **109 cities** — per-city correction tables verified against Swiss Ephemeris
+- **157 cities** — per-city correction tables verified against Swiss Ephemeris
 - **Pure Java 17** — no external dependencies, works on Android/server/desktop
 - **200-year accuracy** — validated 1900–2100 against Drik Panchang
+
+## Installation
+
+**Gradle (Kotlin DSL):**
+```kotlin
+implementation("io.github.misrilibrary:tithi-engine:1.0.0")
+```
+
+**Gradle (Groovy):**
+```groovy
+implementation 'io.github.misrilibrary:tithi-engine:1.0.0'
+```
+
+**Maven:**
+```xml
+<dependency>
+    <groupId>io.github.misrilibrary</groupId>
+    <artifactId>tithi-engine</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
 ## Quick Start
 
@@ -77,7 +101,7 @@ System.out.println("Janmashtami 2026 Seattle: " + date);
        KARVA_CHAUTH  // ← add here
    );
    ```
-4. Run `gradle test` — `ExtensibilityGuardTest` will fail if you forget step 3.
+4. Run `./gradlew test` — `ExtensibilityGuardTest` will fail if you forget step 3.
 
 ### Adding a City
 
@@ -91,7 +115,7 @@ This simultaneously creates the constant and registers the city with coordinates
 
 *(Optional)* Add a `src/main/resources/corrections/rishikesh.json` for Swiss Ephemeris-level accuracy. Without it, Meeus fallback gives ~99.9%.
 
-Run `gradle test` — `ExtensibilityGuardTest` will fail if you declare a constant without using `reg()`.
+Run `./gradlew test` — `ExtensibilityGuardTest` will fail if you declare a constant without using `reg()`.
 
 ### Adding a Muhurta Rule
 
@@ -118,7 +142,7 @@ src/main/resources/corrections/
 ├── ujjain.json               ← Swiss-verified correction table
 ├── srinagar.json
 ├── seattle.json
-└── ... (109 cities)
+└── ... (157 cities)
 ```
 
 ## Accuracy
@@ -133,10 +157,10 @@ src/main/resources/corrections/
 ## Building
 
 ```bash
-gradle build
-gradle test
+./gradlew build    # compile + test + SpotBugs + JaCoCo + JARs
+./gradlew test     # tests only
 ```
 
 ## License
 
-Copyright © 2026 Misri Library. All rights reserved.
+Licensed under the [Apache License 2.0](LICENSE).
