@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] — 2026-06-05
+
+### Added
+- 52 new city correction tables (209 total cities worldwide)
+- New regions: Pakistan, Caribbean, Africa, Europe, Americas, Central/SE Asia, Oceania
+
 ## [1.0.0] — 2026-06-04
 
 ### Added

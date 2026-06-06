@@ -11,7 +11,7 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 - **Festival dates** — muhurta-accurate (nishita, madhyahna, pradosh rules)
 - **Month resolution** — moment-based adhika/kshaya detection, Purnimant & Amant systems
 - **Date finding** — tithi → Gregorian date in any year
-- **157 cities** — per-city correction tables verified against Swiss Ephemeris
+- **209 cities** — per-city correction tables verified against Swiss Ephemeris
 - **Pure Java 17** — no external dependencies, works on Android/server/desktop
 - **200-year accuracy** — validated 1900–2100 against Drik Panchang
 
@@ -19,12 +19,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:1.0.0")
+implementation("io.github.misrilibrary:tithi-engine:1.0.2")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:1.0.0'
+implementation 'io.github.misrilibrary:tithi-engine:1.0.2'
 ```
 
 **Maven:**
@@ -32,7 +32,7 @@ implementation 'io.github.misrilibrary:tithi-engine:1.0.0'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -113,7 +113,7 @@ public static final String RISHIKESH = reg("Rishikesh", 30.1, 78.3, 5.5);
 
 This simultaneously creates the constant and registers the city with coordinates. That's it.
 
-*(Optional)* Add a `src/main/resources/corrections/rishikesh.json` for Swiss Ephemeris-level accuracy. Without it, Meeus fallback gives ~99.9%.
+*(Optional)* Add a `src/main/resources/corrections/rishikesh.json` for Swiss Ephemeris-level accuracy. Without it, Meeus fallback gives ~99.9%. See the [Dart companion repo](https://github.com/misrilibrary/tithi-engine-dart) for the correction generation tooling.
 
 Run `./gradlew test` — `ExtensibilityGuardTest` will fail if you declare a constant without using `reg()`.
 
@@ -142,7 +142,7 @@ src/main/resources/corrections/
 ├── ujjain.json               ← Swiss-verified correction table
 ├── srinagar.json
 ├── seattle.json
-└── ... (157 cities)
+└── ... (209 cities)
 ```
 
 ## Accuracy
