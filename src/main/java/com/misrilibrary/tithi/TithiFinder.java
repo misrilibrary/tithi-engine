@@ -45,14 +45,20 @@ class TithiFinder {
         for (LunarMonthResolver.MonthSpan span : matchingSpans) {
             LocalDate lastSeen = null;
             int prevT = -1;
-            for (LocalDate dt = span.start; dt.isBefore(span.end); dt = dt.plusDays(1)) {
+            // Start one day before span to detect kshaya at span start
+            LocalDate loopStart = span.start.minusDays(1);
+            for (LocalDate dt = loopStart; dt.isBefore(span.end); dt = dt.plusDays(1)) {
                 LocalDateTime sr = Astronomy.computeSunrise(dt, loc);
                 int currentTithi = Astronomy.tithiAt(sr);
+                if (dt.isBefore(span.start)) {
+                    prevT = currentTithi;
+                    continue;
+                }
                 if (currentTithi == targetTithi) {
                     lastSeen = dt;
                 } else if (lastSeen != null) {
                     break;
-                } else if (prevT > 0 && prevT < targetTithi && currentTithi > targetTithi) {
+                } else if (prevT > 0 && isKshaya(prevT, targetTithi, currentTithi)) {
                     lastSeen = dt.minusDays(1); // kshaya
                     break;
                 }
@@ -91,6 +97,14 @@ class TithiFinder {
                 .filter(m -> m.span.adhika == isAdhika)
                 .collect(Collectors.toList());
         return preferred.isEmpty() ? matches : preferred;
+    }
+
+    /** Detect kshaya (skipped tithi), handling the 30→1 wraparound. */
+    private static boolean isKshaya(int prev, int target, int current) {
+        if (target == 1) {
+            return prev >= 29 && current >= 2 && current <= 3;
+        }
+        return prev < target && current > target;
     }
 
     private static class TithiMatch {
