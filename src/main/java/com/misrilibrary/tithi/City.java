@@ -187,6 +187,27 @@ public final class City {
     public static final String SANTIAGO = reg("Santiago", -33.4, -70.6, -4.0);
 
     // ─── Default ───
+    public static final String HONOLULU = reg("Honolulu", 21.3, -157.8, -10.0);
+    public static final String TAMPA = reg("Tampa", 27.9, -82.5, -5.0);
+    public static final String PITTSBURGH = reg("Pittsburgh", 40.4, -80.0, -5.0);
+    public static final String COLUMBUS = reg("Columbus", 39.9, -83.0, -5.0);
+    public static final String INDIANAPOLIS = reg("Indianapolis", 39.8, -86.2, -5.0);
+    public static final String KANSAS_CITY = reg("Kansas City", 39.1, -94.6, -6.0);
+    public static final String ST_LOUIS = reg("St. Louis", 38.6, -90.2, -6.0);
+    public static final String SACRAMENTO = reg("Sacramento", 38.6, -121.5, -8.0);
+    public static final String HALIFAX = reg("Halifax", 44.6, -63.6, -4.0);
+    public static final String REGINA = reg("Regina", 50.5, -104.6, -6.0);
+    public static final String GOTHENBURG = reg("Gothenburg", 57.7, 12.0, 1.0);
+    public static final String LYON = reg("Lyon", 45.8, 4.8, 1.0);
+    public static final String NAPLES = reg("Naples", 40.8, 14.3, 1.0);
+    public static final String ZAGREB = reg("Zagreb", 45.8, 16.0, 1.0);
+    public static final String KRAKOW = reg("Krakow", 50.1, 19.9, 1.0);
+    public static final String THESSALONIKI = reg("Thessaloniki", 40.6, 22.9, 2.0);
+    public static final String PORTO = reg("Porto", 41.2, -8.6, 0.0);
+    public static final String ROTTERDAM = reg("Rotterdam", 51.9, 4.5, 1.0);
+    public static final String BEIRUT = reg("Beirut", 33.9, 35.5, 2.0);
+    public static final String ANKARA = reg("Ankara", 39.9, 32.9, 3.0);
+    public static final String REDMOND = reg("Redmond", 47.7, -122.1, -8.0);
     public static final String DEFAULT = UJJAIN;
 
     // ─── Registry methods ───
