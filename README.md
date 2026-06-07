@@ -19,12 +19,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:1.0.2")
+implementation("io.github.misrilibrary:tithi-engine:1.0.7")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:1.0.2'
+implementation 'io.github.misrilibrary:tithi-engine:1.0.7'
 ```
 
 **Maven:**
@@ -32,7 +32,7 @@ implementation 'io.github.misrilibrary:tithi-engine:1.0.2'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.7</version>
 </dependency>
 ```
 

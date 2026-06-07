@@ -4,10 +4,11 @@ plugins {
     id 'com.github.spotbugs' version '6.0.9'
     id 'maven-publish'
     id 'signing'
+    id 'net.thebugmc.gradle.sonatype-central-portal-publisher' version '1.2.4'
 }
 
 group = 'io.github.misrilibrary'
-version = '1.0.2'
+version = '1.0.7'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -46,43 +47,31 @@ jacocoTestReport {
     }
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            pom {
-                name = 'tithi-engine'
-                description = 'Pure Java library for Hindu lunar calendar (tithi/panchang) calculations'
-                url = 'https://github.com/misrilibrary/tithi-engine'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'sumeetmisri'
-                        name = 'Sumeet Misri'
-                        email = 'misrilibrary@gmail.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/misrilibrary/tithi-engine.git'
-                    developerConnection = 'scm:git:ssh://github.com/misrilibrary/tithi-engine.git'
-                    url = 'https://github.com/misrilibrary/tithi-engine'
-                }
+centralPortal {
+    username = findProperty('ossrhUsername') ?: ''
+    password = findProperty('ossrhPassword') ?: ''
+
+    pom {
+        name = 'tithi-engine'
+        description = 'Pure Java library for Hindu lunar calendar (tithi/panchang) calculations'
+        url = 'https://github.com/misrilibrary/tithi-engine'
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
             }
         }
-    }
-    repositories {
-        maven {
-            name = 'OSSRH'
-            url = 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
-            credentials {
-                username = findProperty('ossrhUsername') ?: ''
-                password = findProperty('ossrhPassword') ?: ''
+        developers {
+            developer {
+                id = 'sumeetmisri'
+                name = 'Sumeet Misri'
+                email = 'misrilibrary@gmail.com'
             }
+        }
+        scm {
+            connection = 'scm:git:git://github.com/misrilibrary/tithi-engine.git'
+            developerConnection = 'scm:git:ssh://github.com/misrilibrary/tithi-engine.git'
+            url = 'https://github.com/misrilibrary/tithi-engine'
         }
     }
 }
@@ -92,8 +81,8 @@ signing {
     if (signingKey) {
         useInMemoryPgpKeys(findProperty('signingKeyId'), signingKey, findProperty('signingPassword'))
     }
-    sign publishing.publications.mavenJava
-    required { gradle.taskGraph.hasTask('publish') }
+    sign publishing.publications
+    required { gradle.taskGraph.hasTask('publish') || gradle.taskGraph.hasTask('publishToCentralPortal') }
 }
 
 import com.github.spotbugs.snom.Effort
