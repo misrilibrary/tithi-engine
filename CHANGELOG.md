@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.9] — 2026-06-07
+
+### Fixed
+- Kshaya tithi detection at 30→1 wraparound (Shukla Pratipada skipped)
+- Kshaya detection at month span start (e.g. Krishna Pratipada in Purnimant)
+- findInYear/getDates now correctly returns the previous day for skipped tithis
+
 ## [1.0.7] — 2026-06-06
 
 ### Added

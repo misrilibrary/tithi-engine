@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'io.github.misrilibrary'
-version = '1.0.7'
+version = '1.0.9'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
