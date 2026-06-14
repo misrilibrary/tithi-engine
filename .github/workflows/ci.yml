@@ -9,15 +9,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '17', '21' ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: ${{ matrix.java }}
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew build
+      # Bytecode targets Java 17 regardless of build JDK; upload jars once.
       - uses: actions/upload-artifact@v4
+        if: matrix.java == '17'
         with:
           name: jars
           path: build/libs/*.jar

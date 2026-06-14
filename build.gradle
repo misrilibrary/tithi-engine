@@ -11,10 +11,14 @@ group = 'io.github.misrilibrary'
 version = '1.0.9'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
+}
+
+// Emit Java 17 bytecode (the consumer floor) even when built on a newer JDK,
+// and reject any newer-than-17 API at compile time.
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
 }
 
 repositories {
