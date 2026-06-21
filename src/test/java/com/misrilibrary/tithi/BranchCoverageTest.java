@@ -153,7 +153,7 @@ class BranchCoverageTest {
         List<LocalDate> dates = panchang.getDates(LunarMonth.JYESHTHA, Paksha.SHUKLA, 1, 2026, "Ujjain");
         assertFalse(dates.isEmpty());
         // Verify we got the regular (non-adhika) month
-        TithiInfo info = panchang.forDate(dates.get(0), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(dates.get(0), "Ujjain");
         assertEquals(LunarMonth.JYESHTHA, info.getMonth());
     }
 

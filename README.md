@@ -19,12 +19,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:1.1.0")
+implementation("io.github.misrilibrary:tithi-engine:2.0.0")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:1.1.0'
+implementation 'io.github.misrilibrary:tithi-engine:2.0.0'
 ```
 
 **Maven:**
@@ -32,7 +32,7 @@ implementation 'io.github.misrilibrary:tithi-engine:1.1.0'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
@@ -45,43 +45,65 @@ import java.time.LocalDate;
 
 Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
 
-// Date → Tithi
-TithiInfo info = panchang.forDate(LocalDate.of(2026, 2, 15), City.UJJAIN);
+// Date → Tithi (sunrise tithi of the panchang day; for display/observance)
+TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), City.UJJAIN);
 System.out.println(info); // "Phalguna Krishna Trayodashi"
 
-// Festival date
-LocalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.UJJAIN);
-System.out.println("Maha Shivaratri 2026: " + shivaratri); // 2026-02-15
+// Festival date (returns a FestivalDate: observance date + tithi span + muhurta window)
+FestivalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.UJJAIN);
+System.out.println("Maha Shivaratri 2026: " + shivaratri.getDate()); // 2026-02-15
 
 // Tithi → Date
 LocalDate date = panchang.getDate(LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, 2026, City.SEATTLE);
 System.out.println("Janmashtami 2026 Seattle: " + date);
+
+// Exact-moment (birth-time) tithi: pass a true UTC instant + the DST-aware offset in effect
+import java.time.*;
+ZoneOffset cdt = ZoneOffset.ofHours(-5);
+Instant birth = LocalDateTime.of(2006, 5, 30, 20, 0).toInstant(cdt); // 8 PM CDT
+TithiInfo birthTithi = panchang.tithiAtInstant(birth, "Austin", cdt);
 ```
 
 ## API
 
+`Panchang` is the single entry point. The time-aware API is **UTC-instant based**:
+pass true `Instant`s and, where a civil day matters, the DST-aware `ZoneOffset`
+in effect (the library does no timezone resolution).
+
 | Method | Description |
 |--------|-------------|
-| `panchang.forDate(date, city)` | Gregorian date → full TithiInfo |
-| `panchang.getDate(month, paksha, tithi, year, city)` | Tithi spec → Gregorian date |
+| `panchang.tithiOnDate(date, city)` | Sunrise tithi of the panchang day (display/observance) |
+| `panchang.tithiAtInstant(utcInstant, city, offset)` | Tithi at an exact UTC moment (birth-time) |
+| `panchang.tithiSegments(startUtc, endUtc, city, offset)` | Every tithi segment in a UTC window (N transitions → N+1 segments) |
+| `panchang.getDate(month, paksha, tithi, year, city)` | Tithi spec → Gregorian date (`null` if none) |
 | `panchang.getDates(month, paksha, tithi, year, city)` | Tithi spec → all dates (adhika-aware) |
-| `panchang.dateFor(festival, year, city)` | Festival → date with muhurta rules |
+| `panchang.findNext(month, paksha, tithi, city, from)` | Next occurrence of a tithi from a date |
+| `panchang.dateFor(festival, year, city)` | Festival → `FestivalDate` (date + tithi span + muhurta window) |
+| `panchang.recurringDates(festival, year, city)` | Recurring festival → all occurrences in the year |
+| `City.qualifiedName(name)` / `City.displayName(name)` | Display labels (always-qualified / selective) |
+| `TithiInfo.fromStored(...)` | Render a saved tithi (optional Purnimant↔Amant display conversion) |
 
 ## Supported Festivals
 
-| Festival | Muhurta Rule |
-|----------|-------------|
-| Maha Shivaratri | Nishita (midnight) |
-| Holika Dahan | Pradosh (evening) |
-| Ram Navami | Madhyahna (midday) |
-| Akshaya Tritiya | Madhyahna (midday) |
-| Guru Purnima | Sunrise |
-| Raksha Bandhan | Sunrise |
-| Janmashtami (Smarta) | Nishita (midnight) |
-| Janmashtami (ISKCON) | Sunrise |
-| Ganesh Chaturthi | Sunrise |
-| Vijayadashami | Sunrise |
-| Diwali / Lakshmi Puja | Pradosh (evening) |
+| Festival | Muhurta Rule | Tradition |
+|----------|-------------|-----------|
+| Herath (Maha Shivaratri, Kashmiri) | Nishita (midnight) | Kashmiri |
+| Maha Shivaratri | Nishita (midnight) | General |
+| Holika Dahan | Pradosh (evening) | General |
+| Ram Navami | Madhyahna (midday) | General |
+| Akshaya Tritiya | Madhyahna (midday) | General |
+| Guru Purnima | Sunrise | General |
+| Raksha Bandhan | Sunrise | General |
+| Zarmasatam (Janmashtami, Kashmiri) | Nishita (midnight) | Kashmiri |
+| Janmashtami (Smarta) | Nishita (midnight) | Smarta |
+| Janmashtami (ISKCON) | Sunrise | Vaishnava |
+| Ganesh Chaturthi | Sunrise | General |
+| Vijayadashami | Sunrise | General |
+| Diwali / Lakshmi Puja | Pradosh (evening) | General |
+
+Plus 5 **recurring** monthly tithis (`recurring = true`), enumerated via
+`recurringDates(...)`: Krishna Ashtami, Krishna Ekadashi, Shukla Ekadashi,
+Purnima, Amavasya.
 
 ## Extensibility
 
@@ -153,7 +175,7 @@ src/main/resources/corrections/
 | Month boundaries (Purnimant) | 100% (200 years, verified cities) |
 | Festival dates vs Drik Panchang | 22/22 (2025–2026) |
 | Meeus fallback (no correction table) | ~99.9% |
-| Test coverage | 123 tests, 98%+ line, 86%+ branch |
+| Test coverage | 140 tests, high line/branch coverage |
 
 > **Note:** The Maven group ID is `io.github.misrilibrary` but the Java package is `com.misrilibrary.tithi`. This is intentional and standard practice — the two don't need to match.
 
@@ -169,9 +191,13 @@ The two packages **version independently** — each version string is a semver c
 |---|---|---|
 | Astronomy engine rev `r2` (VSOP87/TT) | `1.1.0+` | `2.1.0+` |
 | 230 cities, Swiss-verified tables | `1.1.0+` | `2.1.0+` |
-| City display-name disambiguation (`region` / `qualifiedName` / `displayName`) | _planned_ | `2.2.0+` |
-| Time-aware API (`tithiOnDate` / `tithiAtInstant` / `tithiSegments`) | _planned_ | `3.0.0+` |
-| `recurringDates` / `findNext` / `TithiInfo.fromStored` | _planned_ | `2.0.0+` |
+| City display-name disambiguation (`region` / `qualifiedName` / `displayName`) | `2.0.0+` | `2.2.0+` |
+| Time-aware API (`tithiOnDate` / `tithiAtInstant` / `tithiSegments`) | `2.0.0+` | `3.0.0+` |
+| `recurringDates` / `findNext` / `TithiInfo.fromStored` | `2.0.0+` | `2.0.0+` |
+
+> **API generation:** Java `2.0.0` reaches feature parity with Dart `3.x` (the
+> time-aware, UTC-instant API). The version numbers differ because each is its
+> own ecosystem's semver — Java `2.0.0` is simply Java's first breaking release.
 
 ## Building
 

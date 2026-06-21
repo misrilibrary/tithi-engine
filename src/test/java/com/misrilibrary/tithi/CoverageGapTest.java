@@ -21,7 +21,7 @@ class CoverageGapTest {
         List<LocalDate> dates = panchang.getDates(LunarMonth.JYESHTHA, Paksha.SHUKLA, 4, 2026, "Ujjain");
         assertFalse(dates.isEmpty());
         for (LocalDate d : dates) {
-            TithiInfo info = panchang.forDate(d, "Ujjain");
+            TithiInfo info = panchang.tithiOnDate(d, "Ujjain");
             // Should find regular Jyeshtha, not adhika
             assertEquals(LunarMonth.JYESHTHA, info.getMonth());
         }
@@ -30,15 +30,15 @@ class CoverageGapTest {
     @Test @DisplayName("Year boundary date — exercises adjacent-year fallback in getMonthInfo")
     void yearBoundaryDate() {
         // Dec 31 and Jan 1 — may need adjacent year scan
-        TithiInfo dec31 = panchang.forDate(LocalDate.of(2025, 12, 31), "Ujjain");
-        TithiInfo jan1 = panchang.forDate(LocalDate.of(2026, 1, 1), "Ujjain");
+        TithiInfo dec31 = panchang.tithiOnDate(LocalDate.of(2025, 12, 31), "Ujjain");
+        TithiInfo jan1 = panchang.tithiOnDate(LocalDate.of(2026, 1, 1), "Ujjain");
         assertNotNull(dec31.getMonth());
         assertNotNull(jan1.getMonth());
     }
 
     @Test @DisplayName("TithiInfo.toString()")
     void tithiInfoToString() {
-        TithiInfo info = panchang.forDate(LocalDate.of(2026, 3, 20), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 3, 20), "Ujjain");
         assertEquals(info.getDisplayName(), info.toString());
     }
 
@@ -95,7 +95,8 @@ class CoverageGapTest {
     @Test @DisplayName("dateFor with SUNRISE muhurta — no shift")
     void dateForSunriseMuhurta() {
         // Ganesh Chaturthi uses SUNRISE — should not shift
-        LocalDate date = panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, "Ujjain");
+        FestivalDate gcFd = panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, "Ujjain");
+        LocalDate date = gcFd == null ? null : gcFd.getDate();
         assertNotNull(date);
     }
 }

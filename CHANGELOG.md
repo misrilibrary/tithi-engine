@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] — 2026-06-21
+
+Full API parity with the Dart `tithi-engine-dart` 3.x surface. **Breaking** —
+the time-of-day API is now UTC-instant based, mirroring the Dart redesign.
+
+### Breaking changes
+- **`forDate(LocalDate, city)` is removed**, replaced by
+  `tithiOnDate(LocalDate, city)` — the sunrise tithi of the panchang day
+  (calendar/observance display). Pure rename; same result.
+- **`dateFor(...)` now returns a `FestivalDate`** (observance date + tithi
+  start/end + muhurta window), not a bare `LocalDate`. Use `.getDate()` for the
+  date.
+- **`getDate(...)` returns `null`** when no date matches (e.g. a kshaya tithi),
+  instead of throwing `NoSuchElementException`.
+
+### Added
+- **Time-aware API** (UTC-instant based — the caller resolves the DST-aware
+  offset; the library does no timezone work):
+  - `tithiAtInstant(Instant utcInstant, city, ZoneOffset offset)` — tithi at an
+    exact moment (birth-time precision).
+  - `tithiSegments(Instant startUtc, Instant endUtc, city, ZoneOffset offset)`
+    → `List<TithiSegment>` — every tithi transition in a window (N → N+1
+    segments), each carrying its own resolved `TithiInfo` and bounding instants.
+  - `TithiSegment` value type.
+- `findNext(month, paksha, tithi, city, from)` — next occurrence of a tithi.
+- `recurringDates(festival, year, city)` → `List<FestivalDate>` for recurring
+  (monthly) tithis.
+- `TithiInfo.fromStored(...)` — render a saved tithi, with optional
+  Purnimant↔Amant month-name conversion.
+- **City display-name disambiguation:** `CityLocation.region`,
+  `City.qualifiedName(name)` (always-qualified), `City.displayName(name)`
+  (qualifies only the 14 commonly-confused names).
+- **All 230 cities now registered with coordinates + region** (previously 178
+  had coordinates; the other 52 fell back to the default city for sunrise).
+- **Festival parity:** `FestivalTradition` enum, `recurring`/`enabledByDefault`
+  flags, Kashmiri variants (Herath, Zarmasatam), and 5 recurring `masik_*`
+  festivals — 18 built-in festivals total.
+
+### Notes
+- Numerical output (tithi/month/festival dates) is unchanged from 1.1.0; this
+  release is an API surface change. Engine revision is still `r2`.
+
 ## [1.1.0] — 2026-06-21
 
 ### Engine accuracy overhaul (no public API change)

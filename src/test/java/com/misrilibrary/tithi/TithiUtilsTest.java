@@ -39,7 +39,7 @@ class TithiUtilsTest {
     @Test @DisplayName("Display name format: Month Paksha Tithi")
     void displayNameFormat() {
         Panchang panchang = new Panchang();
-        TithiInfo info = panchang.forDate(LocalDate.of(2024, 6, 15), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2024, 6, 15), "Ujjain");
         String[] parts = info.getDisplayName().split(" ");
         assertEquals(3, parts.length);
         assertTrue(parts[1].equals("Shukla") || parts[1].equals("Krishna"));
@@ -53,7 +53,7 @@ class TithiUtilsTest {
         String lastMonth = null;
         int transitions = 0;
         for (LocalDate d = LocalDate.of(2026, 1, 1); d.getYear() == 2026; d = d.plusDays(1)) {
-            TithiInfo t = panchang.forDate(d, "Ujjain");
+            TithiInfo t = panchang.tithiOnDate(d, "Ujjain");
             String mn = t.getMonth().getDisplayName();
             if (!mn.equals(lastMonth)) {
                 transitions++;
@@ -69,11 +69,11 @@ class TithiUtilsTest {
     void krishnaBeforeShukla() {
         Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
         // Magha 2026 starts Jan 4 (Krishna)
-        TithiInfo early = panchang.forDate(LocalDate.of(2026, 1, 4), "Ujjain");
+        TithiInfo early = panchang.tithiOnDate(LocalDate.of(2026, 1, 4), "Ujjain");
         assertEquals(LunarMonth.MAGHA, early.getMonth());
         assertEquals(Paksha.KRISHNA, early.getPaksha());
         // Later in same month should be Shukla
-        TithiInfo later = panchang.forDate(LocalDate.of(2026, 1, 20), "Ujjain");
+        TithiInfo later = panchang.tithiOnDate(LocalDate.of(2026, 1, 20), "Ujjain");
         assertEquals(LunarMonth.MAGHA, later.getMonth());
         assertEquals(Paksha.SHUKLA, later.getPaksha());
     }

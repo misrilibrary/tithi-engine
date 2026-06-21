@@ -19,14 +19,14 @@ class TithiCalculatorTest {
     @Test
     void tithiAtKnownDate() {
         Panchang panchang = new Panchang();
-        TithiInfo info = panchang.forDate(LocalDate.of(2026, 3, 19), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 3, 19), "Ujjain");
         assertEquals(30, info.getTithiNumber());
     }
 
     @Test
     void tithiAtPurnima() {
         Panchang panchang = new Panchang();
-        TithiInfo info = panchang.forDate(LocalDate.of(2026, 7, 29), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 7, 29), "Ujjain");
         assertEquals(15, info.getTithiNumber());
     }
 
@@ -42,7 +42,7 @@ class TithiCalculatorTest {
     @Test
     void forDateBasic() {
         Panchang panchang = new Panchang();
-        TithiInfo info = panchang.forDate(LocalDate.of(2026, 3, 20), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 3, 20), "Ujjain");
         assertEquals(2, info.getTithiNumber());
         assertEquals("Dwitiya", info.getTithiName());
         assertEquals(Paksha.SHUKLA, info.getPaksha());

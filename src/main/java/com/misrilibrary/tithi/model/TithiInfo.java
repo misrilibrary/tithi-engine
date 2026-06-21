@@ -49,4 +49,55 @@ public class TithiInfo {
 
     @Override
     public String toString() { return displayName; }
+
+    // ── Canonical tithi names (1-15 within a paksha) ──
+    private static final String[] NAMES = {
+        "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+        "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
+        "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima"
+    };
+
+    private static String nameFor(int tithiNumber) {
+        if (tithiNumber == 15) return "Purnima";
+        if (tithiNumber == 30) return "Amavasya";
+        return NAMES[(tithiNumber - 1) % 15];
+    }
+
+    private static LunarMonth convertMonth(LunarMonth month, Paksha paksha, MonthSystem from, MonthSystem to) {
+        if (from == to || paksha == Paksha.SHUKLA) return month;
+        return from == MonthSystem.PURNIMANT ? month.prev() : month.next();
+    }
+
+    /**
+     * Build a {@link TithiInfo} for a STORED tithi spec (number + month + the
+     * system it was recorded in), deriving paksha/name/position and the display
+     * string. This is pure naming/rendering — no astronomy.
+     *
+     * <p>If {@code displaySystem} differs from {@code storedSystem}, the month
+     * name is converted between Purnimant/Amant for display (the tithi itself is
+     * unchanged). The single source of truth for rendering a saved tithi.
+     *
+     * @param tithiNumber  absolute tithi number (1–30)
+     * @param month        lunar month, in {@code storedSystem} convention
+     * @param storedSystem the month-system the tithi was recorded in
+     * @param isAdhika     whether it was an adhika (leap) month occurrence
+     * @param displaySystem month-system to render in; {@code null} = same as stored
+     */
+    public static TithiInfo fromStored(int tithiNumber, LunarMonth month, MonthSystem storedSystem,
+                                       boolean isAdhika, MonthSystem displaySystem) {
+        Paksha paksha = tithiNumber <= 15 ? Paksha.SHUKLA : Paksha.KRISHNA;
+        String name = nameFor(tithiNumber);
+        int inPaksha = tithiNumber <= 15 ? tithiNumber : tithiNumber - 15;
+        MonthSystem target = displaySystem != null ? displaySystem : storedSystem;
+        LunarMonth displayMonth = convertMonth(month, paksha, storedSystem, target);
+        String pakshaStr = paksha == Paksha.SHUKLA ? "Shukla" : "Krishna";
+        String adhikaPrefix = isAdhika ? "Adhika " : "";
+        String display = adhikaPrefix + displayMonth.getDisplayName() + " " + pakshaStr + " " + name;
+        return new TithiInfo(tithiNumber, name, paksha, inPaksha, displayMonth, isAdhika, display);
+    }
+
+    /** Convenience overload: render in the same system it was stored in. */
+    public static TithiInfo fromStored(int tithiNumber, LunarMonth month, MonthSystem storedSystem) {
+        return fromStored(tithiNumber, month, storedSystem, false, null);
+    }
 }
