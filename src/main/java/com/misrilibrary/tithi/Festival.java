@@ -65,6 +65,7 @@ public class Festival {
 
     // ─── Recurring monthly tithis (month field ignored) ───
     public static final Festival MASIK_KRISHNA_ASHTAMI = new Festival("masik_krishna_ashtami", "Krishna Ashtami", LunarMonth.CHAITRA, Paksha.KRISHNA, 8, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
+    public static final Festival MASIK_SHUKLA_ASHTAMI = new Festival("masik_shukla_ashtami", "Shukla Ashtami", LunarMonth.CHAITRA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
     public static final Festival MASIK_KRISHNA_EKADASHI = new Festival("masik_krishna_ekadashi", "Krishna Ekadashi", LunarMonth.CHAITRA, Paksha.KRISHNA, 11, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
     public static final Festival MASIK_SHUKLA_EKADASHI = new Festival("masik_shukla_ekadashi", "Shukla Ekadashi", LunarMonth.CHAITRA, Paksha.SHUKLA, 11, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
     public static final Festival MASIK_PURNIMA = new Festival("masik_purnima", "Purnima", LunarMonth.CHAITRA, Paksha.SHUKLA, 15, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
@@ -74,7 +75,7 @@ public class Festival {
         MAHA_SHIVARATRI_KASHMIRI, MAHA_SHIVARATRI, HOLIKA_DAHAN, RAM_NAVAMI, AKSHAYA_TRITIYA,
         GURU_PURNIMA, RAKSHA_BANDHAN, JANMASHTAMI_KASHMIRI, JANMASHTAMI_SMARTA, JANMASHTAMI_ISKCON,
         GANESH_CHATURTHI, VIJAYADASHAMI, DIWALI,
-        MASIK_KRISHNA_ASHTAMI, MASIK_KRISHNA_EKADASHI, MASIK_SHUKLA_EKADASHI, MASIK_PURNIMA, MASIK_AMAVASYA
+        MASIK_KRISHNA_ASHTAMI, MASIK_SHUKLA_ASHTAMI, MASIK_KRISHNA_EKADASHI, MASIK_SHUKLA_EKADASHI, MASIK_PURNIMA, MASIK_AMAVASYA
     );
 
     /** All built-in festival definitions. */

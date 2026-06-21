@@ -101,9 +101,9 @@ in effect (the library does no timezone resolution).
 | Vijayadashami | Sunrise | General |
 | Diwali / Lakshmi Puja | Pradosh (evening) | General |
 
-Plus 5 **recurring** monthly tithis (`recurring = true`), enumerated via
-`recurringDates(...)`: Krishna Ashtami, Krishna Ekadashi, Shukla Ekadashi,
-Purnima, Amavasya.
+Plus 6 **recurring** monthly tithis (`recurring = true`), enumerated via
+`recurringDates(...)`: Krishna Ashtami, Shukla Ashtami, Krishna Ekadashi,
+Shukla Ekadashi, Purnima, Amavasya.
 
 ## Extensibility
 
