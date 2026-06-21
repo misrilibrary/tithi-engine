@@ -1,0 +1,43 @@
+name: Sync Wiki
+
+# Keeps the GitHub wiki's Home page an exact mirror of README.md, so docs never
+# drift. README.md is the single source of truth; edit it and the wiki follows.
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'README.md'
+      - '.github/workflows/wiki-sync.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish README.md to wiki Home
+        run: |
+          set -euo pipefail
+          if ! git clone "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git" wiki 2>/dev/null; then
+            echo "Wiki not initialized yet — create any page once in the UI and this will auto-sync. Skipping."
+            exit 0
+          fi
+          cp README.md wiki/Home.md
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Home.md
+          if git diff --staged --quiet; then
+            echo "Wiki already in sync with README."
+          else
+            git commit -m "docs(wiki): sync Home from README @ ${{ github.sha }}"
+            git push
+          fi
