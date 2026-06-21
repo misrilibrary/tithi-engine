@@ -11,7 +11,7 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 - **Festival dates** — muhurta-accurate (nishita, madhyahna, pradosh rules)
 - **Month resolution** — moment-based adhika/kshaya detection, Purnimant & Amant systems
 - **Date finding** — tithi → Gregorian date in any year
-- **209 cities** — per-city correction tables verified against Swiss Ephemeris
+- **230 cities** — per-city correction tables verified against Swiss Ephemeris
 - **Pure Java 17** — no external dependencies, works on Android/server/desktop
 - **200-year accuracy** — validated 1900–2100 against Drik Panchang
 
@@ -19,12 +19,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:1.0.7")
+implementation("io.github.misrilibrary:tithi-engine:1.1.0")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:1.0.7'
+implementation 'io.github.misrilibrary:tithi-engine:1.1.0'
 ```
 
 **Maven:**
@@ -32,7 +32,7 @@ implementation 'io.github.misrilibrary:tithi-engine:1.0.7'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>1.0.7</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -129,7 +129,7 @@ src/main/java/com/misrilibrary/tithi/
 ├── Panchang.java             ← Public API (single entry point)
 ├── Festival.java             ← Festival definitions + registry
 ├── City.java                 ← City constants + registry (single file)
-├── Astronomy.java            ← Meeus Sun/Moon, sunrise/sunset
+├── Astronomy.java            ← VSOP87 Sun + Meeus Moon (TT/ΔT), sunrise/sunset
 ├── LunarMonthResolver.java   ← Month naming (adhika/kshaya/double Purnima)
 ├── TithiFinder.java          ← Internal: find tithi date in year
 ├── TithiUtils.java           ← Names, paksha helpers
@@ -142,14 +142,14 @@ src/main/resources/corrections/
 ├── ujjain.json               ← Swiss-verified correction table
 ├── srinagar.json
 ├── seattle.json
-└── ... (209 cities)
+└── ... (230 cities)
 ```
 
 ## Accuracy
 
 | Metric | Value |
 |--------|-------|
-| Tithi vs Swiss Ephemeris | 0 mismatches / 73,049 days (1900–2100) |
+| Tithi vs Swiss Ephemeris | 0 mismatches / 73,414 days × 230 cities (1900–2100) |
 | Month boundaries (Purnimant) | 100% (200 years, verified cities) |
 | Festival dates vs Drik Panchang | 22/22 (2025–2026) |
 | Meeus fallback (no correction table) | ~99.9% |

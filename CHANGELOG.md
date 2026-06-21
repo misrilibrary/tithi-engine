@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] — 2026-06-21
+
+### Engine accuracy overhaul (no public API change)
+
+Output is unchanged for every supported city and every day 1900–2100 — the
+per-city tables still resolve to the Swiss-Ephemeris truth. Behaviour improves
+only for dates/cities outside the tabled set, which now use a much more accurate
+astronomical fallback. This brings the Java engine to parity, math-for-math,
+with the Dart `tithi-engine-dart` engine.
+
+- Evaluate the Meeus Sun/Moon series in Terrestrial Time via a pure-Java
+  Espenak–Meeus delta-T (UT → TT); fixes the dominant, time-growing error.
+- Replace the low-accuracy Meeus Ch.25 Sun with a truncated VSOP87 series
+  (mean ~1.5", max ~6.6" vs Swiss Ephemeris over 1900–2100).
+- Moon longitude now carries the same nutation term as the Sun, so nutation
+  cancels in the Moon–Sun elongation (tithi) and the Moon stays apparent.
+
+### Data
+
+- All 230 per-city correction tables regenerated against the improved engine,
+  using the Dart Swiss-validated daily truth as ground truth and generating a
+  Java correction only where Java's own Meeus disagrees with that truth.
+- Verified by triangulation: Java (engine + regenerated tables) reproduces the
+  Swiss truth on every sunrise tithi, transition, Purnima/Amavasya month
+  boundary, and kshaya across all 230 cities × 73,414 days (0 mismatches), and
+  the regenerated tables are byte-identical to the Dart tables for all 230
+  cities (0 correction-set divergence — the engines agree exactly).
+- Fewer corrections needed (more accurate engine): correction entries
+  ≈30,700 → 12,834 (tithi corrections 14,850 → 6,215).
+- Fixed the `medellín.json` resource name to match the city's display name.
+
 ## [1.0.9] — 2026-06-07
 
 ### Fixed

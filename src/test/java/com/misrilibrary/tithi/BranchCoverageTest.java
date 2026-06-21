@@ -121,12 +121,15 @@ class BranchCoverageTest {
 
     @Test @DisplayName("Purnima correction applied — exercises corrected != null return")
     void purnimaCorrection() {
-        CityCorrections corr = CityCorrections.forCity("Srinagar");
+        // Under the accurate (VSOP87/ΔT) engine most cities need no purnima
+        // boundary corrections; pick one that still does and query the year of an
+        // actual correction so the correctPurnima non-null branch is exercised.
+        CityCorrections corr = CityCorrections.forCity("Adelaide");
         assertFalse(corr.getPurnimaCorrections().isEmpty());
-        // Run the resolver for Srinagar — it will call correctPurnima internally
-        // and hit the non-null path for dates in the correction table
-        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.PURNIMANT, "Srinagar");
-        List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(2026);
+        int dayIndex = corr.getPurnimaCorrections().keySet().iterator().next();
+        int year = LocalDate.of(1900, 1, 1).plusDays(dayIndex).getYear();
+        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.PURNIMANT, "Adelaide");
+        List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(year);
         assertFalse(spans.isEmpty());
     }
 
