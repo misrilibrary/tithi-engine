@@ -12,32 +12,34 @@ public class Example {
     public static void main(String[] args) {
         Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
 
-        // 1. Date → Tithi
+        // 1. Date → Tithi (sunrise tithi of the panchang day)
         LocalDate today = LocalDate.now();
-        TithiInfo info = panchang.forDate(today, City.UJJAIN);
+        TithiInfo info = panchang.tithiOnDate(today, City.UJJAIN);
         System.out.println("Today (" + today + ") in Ujjain: " + info);
 
-        // 2. Festival date
-        LocalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.UJJAIN);
-        System.out.println("Maha Shivaratri 2026 (Ujjain): " + shivaratri);
+        // 2. Festival date (dateFor returns a FestivalDate: date + tithi span + muhurta window)
+        FestivalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.UJJAIN);
+        System.out.println("Maha Shivaratri 2026 (Ujjain): " + shivaratri.getDate());
 
-        LocalDate diwali = panchang.dateFor(Festival.DIWALI, 2026, City.SEATTLE);
-        System.out.println("Diwali 2026 (Seattle): " + diwali);
+        FestivalDate diwali = panchang.dateFor(Festival.DIWALI, 2026, City.SEATTLE);
+        System.out.println("Diwali 2026 (Seattle): " + diwali.getDate());
 
         // 3. Tithi → Date
         LocalDate janmashtami = panchang.getDate(LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, 2026, City.SEATTLE);
         System.out.println("Janmashtami 2026 (Seattle): " + janmashtami);
 
-        // 4. List all supported cities
+        // 4. List all supported cities (with display-name qualification)
         System.out.println("\nSupported cities (" + City.supported().size() + "): ");
-        City.supported().stream().sorted().limit(10).forEach(c -> System.out.print(c + ", "));
+        City.supported().stream().sorted().limit(10)
+            .forEach(c -> System.out.print(City.qualifiedName(c) + ", "));
         System.out.println("...");
 
         // 5. All festivals
         System.out.println("\nFestivals 2026 (Ujjain):");
         for (Festival f : Festival.all()) {
-            LocalDate date = panchang.dateFor(f, 2026, City.UJJAIN);
-            System.out.printf("  %-25s %s%n", f.name, date);
+            if (f.recurring) continue; // recurring tithis use panchang.recurringDates(...)
+            FestivalDate fd = panchang.dateFor(f, 2026, City.UJJAIN);
+            System.out.printf("  %-25s %s%n", f.name, fd == null ? "—" : fd.getDate());
         }
     }
 }

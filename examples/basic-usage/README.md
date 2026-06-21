@@ -41,6 +41,6 @@ Replace `mavenLocal()` with just `mavenCentral()` in `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'io.github.misrilibrary:tithi-engine:1.0.0'
+    implementation 'io.github.misrilibrary:tithi-engine:2.0.0'
 }
 ```
