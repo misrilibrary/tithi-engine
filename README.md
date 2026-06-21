@@ -157,6 +157,22 @@ src/main/resources/corrections/
 
 > **Note:** The Maven group ID is `io.github.misrilibrary` but the Java package is `com.misrilibrary.tithi`. This is intentional and standard practice — the two don't need to match.
 
+## Cross-platform parity
+
+This is the Java implementation of [tithi-engine-dart](https://github.com/misrilibrary/tithi-engine-dart) (Dart). Both compute identical tithi/panchang results, validated against the Swiss Ephemeris.
+
+The two packages **version independently** — each version string is a semver compatibility contract for *that* ecosystem. What stays locked in step is the **astronomy engine revision** (the correctness-critical part) and the feature parity tracked below.
+
+- **Engine revision:** `r2` — VSOP87 Sun + Meeus Moon in Terrestrial Time (Espenak–Meeus ΔT), nutation cancelled in the Moon–Sun elongation. Java `1.1.0+` ⟷ Dart `2.1.0+`. Verified: regenerated tables byte-identical across both, 0 mismatches over 230 cities × 73,414 days.
+
+| Capability | Java (tithi-engine) | Dart (tithi_engine) |
+|---|---|---|
+| Astronomy engine rev `r2` (VSOP87/TT) | `1.1.0+` | `2.1.0+` |
+| 230 cities, Swiss-verified tables | `1.1.0+` | `2.1.0+` |
+| City display-name disambiguation (`region` / `qualifiedName` / `displayName`) | _planned_ | `2.2.0+` |
+| Time-aware API (`tithiOnDate` / `tithiAtInstant` / `tithiSegments`) | _planned_ | `3.0.0+` |
+| `recurringDates` / `findNext` / `TithiInfo.fromStored` | _planned_ | `2.0.0+` |
+
 ## Building
 
 ```bash
