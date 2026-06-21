@@ -105,8 +105,9 @@ class FestivalFinder {
             case NISHITA: {
                 LocalDateTime nextSunrise = Astronomy.computeSunrise(date.plusDays(1), loc);
                 long nightMinutes = Duration.between(sunset, nextSunrise).toMinutes();
-                long prahar = nightMinutes / 4;
-                return new LocalDateTime[]{ sunset.plusMinutes(prahar * 2), sunset.plusMinutes(prahar * 3) };
+                // Nishita = the 8th of the night's 15 muhurtas (the central muhurta).
+                long muhurta = nightMinutes / 15;
+                return new LocalDateTime[]{ sunset.plusMinutes(muhurta * 7), sunset.plusMinutes(muhurta * 8) };
             }
             case MADHYAHNA: {
                 long dayMinutes = Duration.between(sunrise, sunset).toMinutes();

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] — 2026-06-21
+
+### Changed
+- **Nishita Kaal muhurta window** now uses the precise classical definition —
+  the **8th of the night's 15 muhurtas** (the central muhurta) — instead of the
+  coarse "third quarter of the night." Displayed Nishita windows now match Drik
+  Panchang (e.g. Janmashtami Smarta for Seattle/Redmond 2026: 12:47–01:30 AM).
+  Festival **dates are unchanged** — the day-attribution moment is still the
+  night midpoint, which sits at the centre of this muhurta. Engine rev unchanged (`r2`).
+
 ## [2.0.0] — 2026-06-21
 
 Full API parity with the Dart `tithi-engine-dart` 3.x surface. **Breaking** —
