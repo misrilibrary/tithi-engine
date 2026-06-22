@@ -19,12 +19,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:2.0.0")
+implementation("io.github.misrilibrary:tithi-engine:3.0.0")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:2.0.0'
+implementation 'io.github.misrilibrary:tithi-engine:3.0.0'
 ```
 
 **Maven:**
@@ -32,7 +32,7 @@ implementation 'io.github.misrilibrary:tithi-engine:2.0.0'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -80,6 +80,7 @@ in effect (the library does no timezone resolution).
 | `panchang.findNext(month, paksha, tithi, city, from)` | Next occurrence of a tithi from a date |
 | `panchang.dateFor(festival, year, city)` | Festival → `FestivalDate` (date + tithi span + muhurta window) |
 | `panchang.recurringDates(festival, year, city)` | Recurring festival → all occurrences in the year |
+| `panchang.at(location)` | Bind to a `Location` (city name or raw `lat/lng`) → `PanchangAt` (same methods, no `city` arg) |
 | `City.qualifiedName(name)` / `City.displayName(name)` | Display labels (always-qualified / selective) |
 | `TithiInfo.fromStored(...)` | Render a saved tithi (optional Purnimant↔Amant display conversion) |
 
@@ -105,6 +106,40 @@ substitutes another location, because a wrong location produces wrong sunrise-ba
 tithis and festival dates. To check without throwing, use `City.resolveName(name)`
 (returns `null` if unsupported) or inspect `City.supported()`. Need a city added?
 Open an issue: <https://github.com/misrilibrary/tithi-engine/issues>.
+
+### By coordinates
+
+Have raw `lat/lng` (a GPS fix, a map pin) instead of a name? Bind a `Location` with
+`Panchang.at(...)`:
+
+```java
+Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
+
+// A point that rounds into a supported city's 0.1° cell reuses that city
+// wholesale (Swiss-corrected). offset is optional here.
+PanchangAt here = panchang.at(Location.at(47.61, -122.33));
+TithiInfo info = here.tithiOnDate(LocalDate.of(2026, 2, 15));
+here.source();   // LocationSource.CITY_CORRECTED
+
+// A point outside every city's cell is Meeus-only (~99.97%) and REQUIRES the
+// DST-aware UTC offset (used to frame the civil day).
+PanchangAt remote = panchang.at(Location.at(0.0, -140.0, Duration.ofHours(-9)));
+remote.source(); // LocationSource.MEEUS_RAW
+
+// Location.city(name) is the named-city form of the same binding.
+panchang.at(Location.city("Seattle")).tithiOnDate(LocalDate.of(2026, 2, 15));
+```
+
+`PanchangAt` exposes the same read methods as `Panchang` minus the `city` argument
+(`tithiOnDate`, `tithiAtInstant`, `tithiSegments`, `getDate(s)`, `findNext`, `dateFor`,
+`recurringDates`). Cities are stored at ~0.1° (~11 km), so any point within a city's cell
+is treated as that city; see `City.cityForCell(lat,lng)`.
+
+> **Recommendation:** prefer `Location.city(name)` (or a coordinate that lands in a
+> supported city's cell) when you can. A named city carries Swiss‑Ephemeris correction
+> tables — guaranteed accuracy. Off‑grid coordinates are Meeus‑only (~99.97% on
+> day‑assignment): excellent, but the rare knife‑edge days a city's correction would fix
+> are not covered. Use raw coordinates only when no nearby supported city exists.
 
 ## Supported Festivals
 
@@ -218,11 +253,13 @@ The two packages **version independently** — each version string is a semver c
 | Time-aware API (`tithiOnDate` / `tithiAtInstant` / `tithiSegments`) | `2.0.0+` | `3.0.0+` |
 | `recurringDates` / `findNext` / `TithiInfo.fromStored` | `2.0.0+` | `2.0.0+` |
 | Strict city resolution (`resolveName`, fail-fast on unknown, `"City, Region"` form) | `3.0.0+` | `4.0.0+` |
+| Coordinate input (`Location` / `Panchang.at`, 0.1° cell reuse) | `3.0.0+` | `4.0.0+` |
 
 > **API generation:** Java `2.0.0` reaches feature parity with Dart `3.x` (the
 > time-aware, UTC-instant API). Java `3.0.0` ⟷ Dart `4.0.0` add strict city
-> resolution (unknown cities now throw — a behavior break). The version numbers
-> differ because each is its own ecosystem's semver.
+> resolution (unknown cities now throw — a behavior break) and coordinate input
+> (`Location` / `Panchang.at`). The version numbers differ because each is its
+> own ecosystem's semver.
 
 ## Building
 

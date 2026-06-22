@@ -290,13 +290,13 @@ public final class City {
      */
     public static CityLocation getLocation(String city) {
         String name = resolveName(city);
-        if (name == null) {
-            throw new IllegalArgumentException(
-                "Unsupported city: \"" + city + "\". Pick the nearest city in City.supported() "
-                + "and use that, or request it at "
-                + "https://github.com/misrilibrary/tithi-engine/issues");
-        }
-        return LOCATIONS.get(name);
+        if (name != null) return LOCATIONS.get(name);
+        CityLocation adhoc = adHocLocation(city);
+        if (adhoc != null) return adhoc;
+        throw new IllegalArgumentException(
+            "Unsupported city: \"" + city + "\". Pick the nearest city in City.supported() "
+            + "and use that, or request it at "
+            + "https://github.com/misrilibrary/tithi-engine/issues");
     }
 
     /**
@@ -314,6 +314,52 @@ public final class City {
     /** All registered city names (unmodifiable). */
     public static Set<String> supported() {
         return Collections.unmodifiableSet(LOCATIONS.keySet());
+    }
+
+    // ── Coordinate (0.1°) cell index + ad-hoc locations ───────────────────────
+    // The canonical spatial key is the 0.1° cell (cities are stored at 1 decimal,
+    // ~11 km). A lat/long that rounds into a supported city's cell reuses that
+    // city wholesale (coords + Swiss corrections); points outside every city's
+    // cell are addressed as "ad-hoc" locations through the normal name-keyed
+    // pipeline (Meeus-only — no correction table). See design doc.
+    private static volatile Map<String, String> CELL_TO_CITY;
+    private static final Map<String, CityLocation> AD_HOC = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private static String cellKey(double lat, double lng) {
+        return Math.round(lat * 10) + "|" + Math.round(lng * 10);
+    }
+
+    private static Map<String, String> cellIndex() {
+        Map<String, String> idx = CELL_TO_CITY;
+        if (idx == null) {
+            idx = new HashMap<>();
+            for (Map.Entry<String, CityLocation> e : LOCATIONS.entrySet()) {
+                idx.putIfAbsent(cellKey(e.getValue().getLatitude(), e.getValue().getLongitude()), e.getKey());
+            }
+            CELL_TO_CITY = idx;
+        }
+        return idx;
+    }
+
+    /** Registered city whose stored 0.1&deg; cell contains (lat,lng), or {@code null}. */
+    public static String cityForCell(double lat, double lng) {
+        return cellIndex().get(cellKey(lat, lng));
+    }
+
+    /**
+     * Register raw coordinates so the engine can address them through its normal
+     * name-keyed pipeline, returning a stable opaque key. Used for points that
+     * don't fall in a supported city's cell (Meeus-only). Idempotent per point.
+     */
+    public static String registerAdHocLocation(double lat, double lng, double utcOffsetHours) {
+        String key = String.format(java.util.Locale.US, "@%.4f,%.4f@%s", lat, lng, utcOffsetHours);
+        AD_HOC.computeIfAbsent(key, k -> new CityLocation(lat, lng, utcOffsetHours));
+        return key;
+    }
+
+    /** Coordinates previously registered via {@link #registerAdHocLocation}, or {@code null}. */
+    public static CityLocation adHocLocation(String key) {
+        return AD_HOC.get(key);
     }
 
     /**

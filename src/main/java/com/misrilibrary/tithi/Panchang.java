@@ -183,6 +183,18 @@ public class Panchang {
         return FestivalFinder.findRecurringDates(fest, year, city);
     }
 
+    /**
+     * Bind this Panchang to a {@link Location} (a registered city or raw
+     * coordinates), returning a view whose methods drop the {@code city} argument.
+     *
+     * <pre>
+     * panchang.at(Location.at(47.61, -122.33, Duration.ofHours(-8))).tithiOnDate(date);
+     * </pre>
+     */
+    public PanchangAt at(Location location) {
+        return new PanchangAt(this, location);
+    }
+
     // ── Internal helpers ──────────────────────────────────────────────────────
 
     private TithiInfo buildInfo(int tithiNum, LocalDate monthDate, String city) {

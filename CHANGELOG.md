@@ -15,6 +15,11 @@ All notable changes to this project will be documented in this file.
   form: `City.getLocation("new york")` and `City.getLocation("New York, NY")` now
   resolve the same as `"New York"`. New `City.resolveName(name)` returns the
   canonical name or `null` (non-throwing probe).
+- **Coordinate input** via `Location` + `Panchang.at(Location)`: `Location.city(name)`
+  or `Location.at(lat, lng[, offset])`. A point that rounds into a supported city's
+  **0.1° cell** reuses that city wholesale (Swiss-corrected, `LocationSource.CITY_CORRECTED`);
+  a point outside every cell is Meeus-only (`LocationSource.MEEUS_RAW`) and requires an
+  offset. `panchang.at(loc).tithiOnDate(date)` etc.
 
 ### Fixed
 - Festival/date finder no longer mis-attributes a *previous* month's kshaya Purnima/Amavasya to the next month's span (e.g. `getDates(Pausha, Shukla, 15)` wrongly returning Margashirsha purnima dates). Boundary-kshaya now applies only to paksha-leading tithis (Pratipada).
