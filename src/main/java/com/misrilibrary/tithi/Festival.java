@@ -75,6 +75,11 @@ public class Festival {
     public static final Festival MAHA_NAVAMI = new Festival("maha_navami", "Maha Navami", LunarMonth.ASHVINA, Paksha.SHUKLA, 9, MuhurtaRule.SUNRISE);
     public static final Festival KARVA_CHAUTH = new Festival("karva_chauth", "Karva Chauth", LunarMonth.KARTIKA, Paksha.KRISHNA, 4, MuhurtaRule.SUNRISE);
     public static final Festival BHAI_DOOJ = new Festival("bhai_dooj", "Bhai Dooj", LunarMonth.KARTIKA, Paksha.SHUKLA, 2, MuhurtaRule.SUNRISE);
+    public static final Festival KHICHDI_AMAVASYA = new Festival("khichdi_amavasya", "Khichdi Amavasya", LunarMonth.PAUSHA, Paksha.KRISHNA, 15, MuhurtaRule.SUNRISE);
+    public static final Festival GAURI_TRITIYA = new Festival("gauri_tritiya", "Gauri Tritiya", LunarMonth.MAGHA, Paksha.SHUKLA, 3, MuhurtaRule.SUNRISE);
+    public static final Festival KAAV_PUNIM = new Festival("kaav_punim", "Kaav Punim (Magh Purnima)", LunarMonth.MAGHA, Paksha.SHUKLA, 15, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival HURI_AUKDOH = new Festival("huri_aukdoh", "Huri Aukdoh", LunarMonth.PHALGUNA, Paksha.KRISHNA, 1, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival HURI_ASHTAMI = new Festival("huri_ashtami", "Huri Ashtami", LunarMonth.PHALGUNA, Paksha.KRISHNA, 8, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
 
     // ─── Recurring monthly tithis (month field ignored) ───
     public static final Festival MASIK_KRISHNA_ASHTAMI = new Festival("masik_krishna_ashtami", "Krishna Ashtami", LunarMonth.CHAITRA, Paksha.KRISHNA, 8, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
@@ -90,6 +95,7 @@ public class Festival {
         GANESH_CHATURTHI, VIJAYADASHAMI, DIWALI,
         NAVREH, THAL_BUTH_VUCHUN, ZANG_TRAYI, DURGA_ASHTAMI, NIRJALA_EKADASHI, ZYETH_ASHTAMI,
         HAAR_ASHTAMI, SHARAD_NAVRATRI, MAHA_NAVAMI, KARVA_CHAUTH, BHAI_DOOJ,
+        KHICHDI_AMAVASYA, GAURI_TRITIYA, KAAV_PUNIM, HURI_AUKDOH, HURI_ASHTAMI,
         MASIK_KRISHNA_ASHTAMI, MASIK_SHUKLA_ASHTAMI, MASIK_KRISHNA_EKADASHI, MASIK_SHUKLA_EKADASHI, MASIK_PURNIMA, MASIK_AMAVASYA
     );
 
