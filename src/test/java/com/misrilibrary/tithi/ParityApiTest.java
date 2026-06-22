@@ -51,7 +51,7 @@ class ParityApiTest {
         assertTrue(ids.contains("maha_shivaratri_kashmiri"));
         assertTrue(ids.contains("janmashtami_kashmiri"));
         assertTrue(ids.contains("masik_purnima"));
-        assertEquals(19, Festival.all().size());
+        assertEquals(30, Festival.all().size());
         assertEquals(FestivalTradition.KASHMIRI, Festival.MAHA_SHIVARATRI_KASHMIRI.tradition);
         assertTrue(Festival.MASIK_PURNIMA.recurring);
     }

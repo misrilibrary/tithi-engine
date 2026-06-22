@@ -63,6 +63,19 @@ public class Festival {
     public static final Festival VIJAYADASHAMI = new Festival("vijayadashami", "Vijayadashami", LunarMonth.ASHVINA, Paksha.SHUKLA, 10, MuhurtaRule.SUNRISE);
     public static final Festival DIWALI = new Festival("diwali", "Diwali / Lakshmi Puja", LunarMonth.KARTIKA, Paksha.KRISHNA, 15, MuhurtaRule.PRADOSH);
 
+    // ── Curated Kashmiri jantri additions (Samvat 2082) ──
+    public static final Festival NAVREH = new Festival("navreh", "Navreh", LunarMonth.CHAITRA, Paksha.SHUKLA, 1, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival THAL_BUTH_VUCHUN = new Festival("thal_buth_vuchun", "Thal Buth Vuchun", LunarMonth.CHAITRA, Paksha.SHUKLA, 1, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival ZANG_TRAYI = new Festival("zang_trayi", "Zang Trayi", LunarMonth.CHAITRA, Paksha.SHUKLA, 2, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival DURGA_ASHTAMI = new Festival("durga_ashtami", "Durga Ashtami", LunarMonth.CHAITRA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE);
+    public static final Festival NIRJALA_EKADASHI = new Festival("nirjala_ekadashi", "Nirjala Ekadashi", LunarMonth.JYESHTHA, Paksha.SHUKLA, 11, MuhurtaRule.SUNRISE);
+    public static final Festival ZYETH_ASHTAMI = new Festival("zyeth_ashtami", "Zyeth Ashtami", LunarMonth.JYESHTHA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival HAAR_ASHTAMI = new Festival("haar_ashtami", "Haar Ashtami", LunarMonth.ASHADHA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival SHARAD_NAVRATRI = new Festival("sharad_navratri", "Navratri (Sharad) Begins", LunarMonth.ASHVINA, Paksha.SHUKLA, 1, MuhurtaRule.SUNRISE);
+    public static final Festival MAHA_NAVAMI = new Festival("maha_navami", "Maha Navami", LunarMonth.ASHVINA, Paksha.SHUKLA, 9, MuhurtaRule.SUNRISE);
+    public static final Festival KARVA_CHAUTH = new Festival("karva_chauth", "Karva Chauth", LunarMonth.KARTIKA, Paksha.KRISHNA, 4, MuhurtaRule.SUNRISE);
+    public static final Festival BHAI_DOOJ = new Festival("bhai_dooj", "Bhai Dooj", LunarMonth.KARTIKA, Paksha.SHUKLA, 2, MuhurtaRule.SUNRISE);
+
     // ─── Recurring monthly tithis (month field ignored) ───
     public static final Festival MASIK_KRISHNA_ASHTAMI = new Festival("masik_krishna_ashtami", "Krishna Ashtami", LunarMonth.CHAITRA, Paksha.KRISHNA, 8, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
     public static final Festival MASIK_SHUKLA_ASHTAMI = new Festival("masik_shukla_ashtami", "Shukla Ashtami", LunarMonth.CHAITRA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
@@ -75,6 +88,8 @@ public class Festival {
         MAHA_SHIVARATRI_KASHMIRI, MAHA_SHIVARATRI, HOLIKA_DAHAN, RAM_NAVAMI, AKSHAYA_TRITIYA,
         GURU_PURNIMA, RAKSHA_BANDHAN, JANMASHTAMI_KASHMIRI, JANMASHTAMI_SMARTA, JANMASHTAMI_ISKCON,
         GANESH_CHATURTHI, VIJAYADASHAMI, DIWALI,
+        NAVREH, THAL_BUTH_VUCHUN, ZANG_TRAYI, DURGA_ASHTAMI, NIRJALA_EKADASHI, ZYETH_ASHTAMI,
+        HAAR_ASHTAMI, SHARAD_NAVRATRI, MAHA_NAVAMI, KARVA_CHAUTH, BHAI_DOOJ,
         MASIK_KRISHNA_ASHTAMI, MASIK_SHUKLA_ASHTAMI, MASIK_KRISHNA_EKADASHI, MASIK_SHUKLA_EKADASHI, MASIK_PURNIMA, MASIK_AMAVASYA
     );
 
