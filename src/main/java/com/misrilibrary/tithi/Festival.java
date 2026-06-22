@@ -51,7 +51,6 @@ public class Festival {
 
     public static final Festival MAHA_SHIVARATRI_KASHMIRI = new Festival("maha_shivaratri_kashmiri", "Herath", LunarMonth.PHALGUNA, Paksha.KRISHNA, 13, MuhurtaRule.NISHITA, FestivalTradition.KASHMIRI, true, false);
     public static final Festival MAHA_SHIVARATRI = new Festival("maha_shivaratri", "Maha Shivaratri", LunarMonth.PHALGUNA, Paksha.KRISHNA, 14, MuhurtaRule.NISHITA);
-    public static final Festival HOLIKA_DAHAN = new Festival("holika_dahan", "Holika Dahan", LunarMonth.PHALGUNA, Paksha.SHUKLA, 15, MuhurtaRule.PRADOSH);
     public static final Festival RAM_NAVAMI = new Festival("ram_navami", "Ram Navami", LunarMonth.CHAITRA, Paksha.SHUKLA, 9, MuhurtaRule.MADHYAHNA);
     public static final Festival AKSHAYA_TRITIYA = new Festival("akshaya_tritiya", "Akshaya Tritiya", LunarMonth.VAISHAKHA, Paksha.SHUKLA, 3, MuhurtaRule.MADHYAHNA);
     public static final Festival GURU_PURNIMA = new Festival("guru_purnima", "Guru Purnima", LunarMonth.ASHADHA, Paksha.SHUKLA, 15, MuhurtaRule.SUNRISE);
@@ -65,8 +64,7 @@ public class Festival {
 
     // ── Curated Kashmiri jantri additions (Samvat 2082) ──
     public static final Festival NAVREH = new Festival("navreh", "Navreh", LunarMonth.CHAITRA, Paksha.SHUKLA, 1, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
-    public static final Festival THAL_BUTH_VUCHUN = new Festival("thal_buth_vuchun", "Thal Buth Vuchun", LunarMonth.CHAITRA, Paksha.SHUKLA, 1, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
-    public static final Festival ZANG_TRAYI = new Festival("zang_trayi", "Zang Trayi", LunarMonth.CHAITRA, Paksha.SHUKLA, 2, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival ZANG_TRAYI = new Festival("zang_trayi", "Zang Trayi", LunarMonth.CHAITRA, Paksha.SHUKLA, 3, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
     public static final Festival DURGA_ASHTAMI = new Festival("durga_ashtami", "Durga Ashtami", LunarMonth.CHAITRA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE);
     public static final Festival NIRJALA_EKADASHI = new Festival("nirjala_ekadashi", "Nirjala Ekadashi", LunarMonth.JYESHTHA, Paksha.SHUKLA, 11, MuhurtaRule.SUNRISE);
     public static final Festival ZYETH_ASHTAMI = new Festival("zyeth_ashtami", "Zyeth Ashtami", LunarMonth.JYESHTHA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
@@ -83,7 +81,6 @@ public class Festival {
     public static final Festival TEIL_ASHTAMI = new Festival("teil_ashtami", "Teil Ashtami", LunarMonth.PHALGUNA, Paksha.SHUKLA, 8, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
     public static final Festival HOLI = new Festival("holi", "Holi", LunarMonth.PHALGUNA, Paksha.SHUKLA, 15, MuhurtaRule.SUNRISE);
     public static final Festival SONTH = new Festival("sonth", "Sonth", LunarMonth.CHAITRA, Paksha.KRISHNA, 10, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
-    public static final Festival THAL_BARUN_NAVREH = new Festival("thal_barun_navreh", "Thal Barun (Navreh)", LunarMonth.CHAITRA, Paksha.KRISHNA, 14, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
 
     // ─── Recurring monthly tithis (month field ignored) ───
     public static final Festival MASIK_KRISHNA_ASHTAMI = new Festival("masik_krishna_ashtami", "Krishna Ashtami", LunarMonth.CHAITRA, Paksha.KRISHNA, 8, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
@@ -94,13 +91,13 @@ public class Festival {
     public static final Festival MASIK_AMAVASYA = new Festival("masik_amavasya", "Amavasya", LunarMonth.CHAITRA, Paksha.KRISHNA, 15, MuhurtaRule.SUNRISE, FestivalTradition.GENERAL, true, true);
 
     private static final List<Festival> ALL = List.of(
-        MAHA_SHIVARATRI_KASHMIRI, MAHA_SHIVARATRI, HOLIKA_DAHAN, RAM_NAVAMI, AKSHAYA_TRITIYA,
+        MAHA_SHIVARATRI_KASHMIRI, MAHA_SHIVARATRI, RAM_NAVAMI, AKSHAYA_TRITIYA,
         GURU_PURNIMA, RAKSHA_BANDHAN, JANMASHTAMI_KASHMIRI, JANMASHTAMI_SMARTA, JANMASHTAMI_ISKCON,
         GANESH_CHATURTHI, VIJAYADASHAMI, DIWALI,
-        NAVREH, THAL_BUTH_VUCHUN, ZANG_TRAYI, DURGA_ASHTAMI, NIRJALA_EKADASHI, ZYETH_ASHTAMI,
+        NAVREH, ZANG_TRAYI, DURGA_ASHTAMI, NIRJALA_EKADASHI, ZYETH_ASHTAMI,
         HAAR_ASHTAMI, SHARAD_NAVRATRI, MAHA_NAVAMI, KARVA_CHAUTH, BHAI_DOOJ,
         KHICHDI_AMAVASYA, GAURI_TRITIYA, KAAV_PUNIM, HURI_AUKDOH, HURI_ASHTAMI,
-        TEIL_ASHTAMI, HOLI, SONTH, THAL_BARUN_NAVREH,
+        TEIL_ASHTAMI, HOLI, SONTH,
         MASIK_KRISHNA_ASHTAMI, MASIK_SHUKLA_ASHTAMI, MASIK_KRISHNA_EKADASHI, MASIK_SHUKLA_EKADASHI, MASIK_PURNIMA, MASIK_AMAVASYA
     );
 
