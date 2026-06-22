@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
   Vuchun, Zang Trayi, Durga Ashtami, Nirjala Ekadashi, Zyeth Ashtami, Haar
   Ashtami, Navratri (Sharad) Begins, Maha Navami, Karva Chauth, Bhai Dooj, Khichdi Amavasya, Gauri Tritiya, Kaav
   Punim (Magh Purnima), Huri Aukdoh, Huri Ashtami.
-  **35 built-in festivals total.**
+  Teil Ashtami, Holi, Sonth, Thal Barun (Navreh). **39 built-in festivals total.**
 
 ### Changed
 - **Nishita Kaal muhurta window** now uses the precise classical definition —
