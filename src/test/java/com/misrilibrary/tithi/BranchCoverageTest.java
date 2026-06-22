@@ -83,11 +83,11 @@ class BranchCoverageTest {
 
     @Test @DisplayName("buildSpans exercises kshaya Amavasya (T29→T1 skip) path")
     void kshayaAmavasyaPath() {
-        // Scan multiple years with a city that has NO corrections — forces Meeus raw path
-        // where kshaya transitions (T28/29 → T1/2 jump) are more likely
-        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.AMANT, "NonexistentCity");
+        // Scan years OUTSIDE the 1900–2100 correction tables with a supported city —
+        // forces the raw Meeus path where kshaya transitions (T28/29 → T1/2 jump) occur
+        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.AMANT, "Ujjain");
         // Just verify it doesn't crash across many years
-        for (int year = 1950; year <= 1970; year++) {
+        for (int year = 2150; year <= 2170; year++) {
             List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(year);
             assertFalse(spans.isEmpty(), "year " + year + " has no spans");
         }
@@ -95,10 +95,10 @@ class BranchCoverageTest {
 
     @Test @DisplayName("buildSpans with Purnimant where purnima not found in span")
     void purnimantNoPurnimaInSpan() {
-        // Use a city with no corrections — raw Meeus may produce spans
-        // where the purnima detection doesn't find T15 within a span (purnima == null path)
-        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.PURNIMANT, "NonexistentCity");
-        for (int year = 1960; year <= 1965; year++) {
+        // Use out-of-table years (raw Meeus, no corrections) so the purnima detection
+        // may not find T15 within a span (purnima == null path)
+        LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.PURNIMANT, "Ujjain");
+        for (int year = 2150; year <= 2155; year++) {
             List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(year);
             assertFalse(spans.isEmpty());
         }

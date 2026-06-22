@@ -29,7 +29,11 @@ public class CityCorrections {
     }
 
     public static CityCorrections forCity(String city) {
-        String key = city.toLowerCase().replaceAll("\\s+", "");
+        // Resolve to the canonical registered city when known, else use the raw
+        // input (truly-unknown -> no file -> empty maps). Keeps corrections and
+        // coordinates consistent for any spelling of a supported city.
+        String name = com.misrilibrary.tithi.City.resolveName(city);
+        String key = (name != null ? name : city).toLowerCase().replaceAll("\\s+", "");
         return cache.computeIfAbsent(key, CityCorrections::load);
     }
 

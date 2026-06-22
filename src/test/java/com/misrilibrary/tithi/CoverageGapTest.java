@@ -78,11 +78,9 @@ class CoverageGapTest {
         assertEquals("Unknown", TithiUtils.getTithiName(31));
     }
 
-    @Test @DisplayName("City.getLocation fallback for unknown city")
-    void cityLocationFallback() {
-        CityLocation loc = City.getLocation("NonexistentCity");
-        CityLocation ujjain = City.getLocation("Ujjain");
-        assertEquals(ujjain.getLatitude(), loc.getLatitude());
+    @Test @DisplayName("City.getLocation throws for unknown city (no silent fallback)")
+    void cityLocationUnknownThrows() {
+        assertThrows(IllegalArgumentException.class, () -> City.getLocation("NonexistentCity"));
     }
 
     @Test @DisplayName("Panchang.getDate returns a valid date")

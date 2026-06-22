@@ -83,6 +83,29 @@ in effect (the library does no timezone resolution).
 | `City.qualifiedName(name)` / `City.displayName(name)` | Display labels (always-qualified / selective) |
 | `TithiInfo.fromStored(...)` | Render a saved tithi (optional Purnimant↔Amant display conversion) |
 
+### City names
+
+Every method takes a `city` name. Resolution is **case- and space-insensitive** and
+accepts the qualified `"City, Region"` form, so all of these resolve to the same city:
+
+```java
+City.getLocation("New York");      // canonical
+City.getLocation("new york");      // case-insensitive
+City.getLocation("New York, NY");  // qualified form (as City.qualifiedName emits)
+```
+
+The canonical identity is the **(city, region)** pair: the bare name maps to the
+*primary* city for that name, and the qualified `"City, Region"` form selects a
+specific one when several share a name (e.g. a future `"Vancouver, WA"` vs
+`"Vancouver, BC"`). There is **no fuzzy/region-stripping match** — a wrong region
+(`"Vancouver, WA"` when only BC exists) is treated as unknown.
+
+An **unsupported city throws `IllegalArgumentException`** — the engine never silently
+substitutes another location, because a wrong location produces wrong sunrise-based
+tithis and festival dates. To check without throwing, use `City.resolveName(name)`
+(returns `null` if unsupported) or inspect `City.supported()`. Need a city added?
+Open an issue: <https://github.com/misrilibrary/tithi-engine/issues>.
+
 ## Supported Festivals
 
 | Festival | Muhurta Rule | Tradition |
@@ -194,10 +217,12 @@ The two packages **version independently** — each version string is a semver c
 | City display-name disambiguation (`region` / `qualifiedName` / `displayName`) | `2.0.0+` | `2.2.0+` |
 | Time-aware API (`tithiOnDate` / `tithiAtInstant` / `tithiSegments`) | `2.0.0+` | `3.0.0+` |
 | `recurringDates` / `findNext` / `TithiInfo.fromStored` | `2.0.0+` | `2.0.0+` |
+| Strict city resolution (`resolveName`, fail-fast on unknown, `"City, Region"` form) | `3.0.0+` | `4.0.0+` |
 
 > **API generation:** Java `2.0.0` reaches feature parity with Dart `3.x` (the
-> time-aware, UTC-instant API). The version numbers differ because each is its
-> own ecosystem's semver — Java `2.0.0` is simply Java's first breaking release.
+> time-aware, UTC-instant API). Java `3.0.0` ⟷ Dart `4.0.0` add strict city
+> resolution (unknown cities now throw — a behavior break). The version numbers
+> differ because each is its own ecosystem's semver.
 
 ## Building
 

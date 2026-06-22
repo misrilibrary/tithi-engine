@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.1.0] — 2026-06-21
+## [3.0.0] — 2026-06-21
 
 ### Added
 - Recurring festival **Shukla Ashtami** (`masik_shukla_ashtami`) — monthly bright-fortnight Ashtami.
@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file.
   Ashtami, Navratri (Sharad) Begins, Maha Navami, Karva Chauth, Bhai Dooj, Khichdi Amavasya, Gauri Tritiya, Kaav
   Punim (Magh Purnima), Huri Aukdoh, Huri Ashtami.
   Teil Ashtami, Holi, Sonth, Thal Barun (Navreh). **39 built-in festivals total.**
+- **Case/space-insensitive city resolution** plus the qualified `"City, Region"`
+  form: `City.getLocation("new york")` and `City.getLocation("New York, NY")` now
+  resolve the same as `"New York"`. New `City.resolveName(name)` returns the
+  canonical name or `null` (non-throwing probe).
 
 ### Fixed
 - Festival/date finder no longer mis-attributes a *previous* month's kshaya Purnima/Amavasya to the next month's span (e.g. `getDates(Pausha, Shukla, 15)` wrongly returning Margashirsha purnima dates). Boundary-kshaya now applies only to paksha-leading tithis (Pratipada).
@@ -22,6 +26,15 @@ All notable changes to this project will be documented in this file.
   Panchang (e.g. Janmashtami Smarta for Seattle/Redmond 2026: 12:47–01:30 AM).
   Festival **dates are unchanged** — the day-attribution moment is still the
   night midpoint, which sits at the centre of this muhurta. Engine rev unchanged (`r2`).
+- **Behavior change — unsupported cities now fail fast.** `City.getLocation(name)`
+  (and therefore every `Panchang` call) throws `IllegalArgumentException` for an
+  unknown or wrong-region city instead of silently falling back to the default
+  reference city. A wrong location yields wrong sunrise-based tithis/festival dates,
+  so the engine refuses to guess. There is **no fuzzy/region-stripping match**.
+  Validate with `City.resolveName(name)` (returns `null`) or `City.supported()`.
+  `CityCorrections.forCity(...)` is unaffected (still returns empty maps for an
+  unregistered city). Request new cities at
+  <https://github.com/misrilibrary/tithi-engine/issues>.
 
 ## [2.0.0] — 2026-06-21
 

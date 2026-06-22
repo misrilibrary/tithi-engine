@@ -19,6 +19,33 @@ class ParityApiTest {
 
     // ─── B: city coverage + display-name disambiguation ───
 
+    @Test @DisplayName("City resolution: variants/qualified names resolve; no fuzzy/silent cross-city")
+    void cityResolution() {
+        double nyLat = City.getLocation("New York").getLatitude();
+        // case/space variants + qualified form all resolve to the SAME (New York) coords
+        assertEquals(nyLat, City.getLocation("new york").getLatitude());
+        assertEquals(nyLat, City.getLocation("NEWYORK").getLatitude());
+        assertEquals(nyLat, City.getLocation("New York, NY").getLatitude());
+        assertEquals("New York", City.resolveName("new york"));
+        assertEquals("New York", City.resolveName("New York, NY"));
+        // homonyms: bare = primary city-region, exact qualified = specific; no fuzzy region-strip
+        assertEquals("Vancouver", City.resolveName("Vancouver"));
+        assertEquals("Vancouver", City.resolveName("Vancouver, BC"));
+        assertNull(City.resolveName("Vancouver, WA"));   // not in dataset -> no silent BC
+        assertEquals("Redmond", City.resolveName("Redmond, WA"));
+        assertNull(City.resolveName("Redmond, XX"));     // wrong region -> no base-strip
+        // genuinely unknown -> resolveName null, getLocation throws (no silent substitution)
+        assertNull(City.resolveName("Nonexistent City"));
+        assertThrows(IllegalArgumentException.class, () -> City.getLocation("Nonexistent City"));
+        assertThrows(IllegalArgumentException.class, () -> City.getLocation("Vancouver, WA"));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Panchang(MonthSystem.PURNIMANT).tithiOnDate(LocalDate.of(2026, 1, 3), "Nonexistent City"));
+        // coords + corrections agree: same tithi for exact vs qualified
+        Panchang p = new Panchang(MonthSystem.PURNIMANT);
+        assertEquals(p.tithiOnDate(LocalDate.of(2026, 1, 3), "New York").getTithiNumber(),
+                     p.tithiOnDate(LocalDate.of(2026, 1, 3), "New York, NY").getTithiNumber());
+    }
+
     @Test @DisplayName("All 230 cities registered with coordinates")
     void allCitiesRegistered() {
         assertEquals(230, City.supported().size());

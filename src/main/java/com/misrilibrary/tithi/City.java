@@ -12,6 +12,10 @@ public final class City {
     private City() {}
 
     private static final Map<String, CityLocation> LOCATIONS = new LinkedHashMap<>();
+    // Normalized key (and "City, Region" qualified form) -> canonical city name.
+    private static final Map<String, String> RESOLVE = new HashMap<>();
+
+    private static String canon(String s) { return s.toLowerCase().replaceAll("\\s+", ""); }
 
     public static final String ABU_DHABI = reg("Abu Dhabi", 24.5, 54.4, 4.0, "UAE");
     public static final String ACCRA = reg("Accra", 5.6, -0.2, 0.0, "Ghana");
@@ -275,9 +279,36 @@ public final class City {
      * @param city registered city name (e.g. {@code City.SEATTLE})
      * @return location data, or {@link #DEFAULT} location if not found
      */
+    /**
+     * Location for a {@code city} (case/space-insensitive, or {@code "City, Region"}).
+     *
+     * @throws IllegalArgumentException if the city is not supported. The engine
+     *     never silently substitutes a different location, because a wrong location
+     *     yields wrong sunrise-based tithis and festival dates. Use
+     *     {@link #resolveName} (returns {@code null}) or {@link #supported()} to
+     *     validate input first.
+     */
     public static CityLocation getLocation(String city) {
-        CityLocation loc = LOCATIONS.get(city);
-        return loc != null ? loc : LOCATIONS.get(DEFAULT);
+        String name = resolveName(city);
+        if (name == null) {
+            throw new IllegalArgumentException(
+                "Unsupported city: \"" + city + "\". Pick the nearest city in City.supported() "
+                + "and use that, or request it at "
+                + "https://github.com/misrilibrary/tithi-engine/issues");
+        }
+        return LOCATIONS.get(name);
+    }
+
+    /**
+     * Resolve any reasonable city spelling to a registered city name, or
+     * {@code null} if it matches no supported city. Matches (case/space-insensitive)
+     * the bare name (the <i>primary</i> city-region) and the {@code "City, Region"}
+     * qualified form. No region-stripping fuzzy match — {@code "Vancouver, WA"}
+     * never silently resolves to {@code "Vancouver, BC"}.
+     */
+    public static String resolveName(String city) {
+        if (city == null) return null;
+        return RESOLVE.get(canon(city));
     }
 
     /** All registered city names (unmodifiable). */
@@ -311,11 +342,14 @@ public final class City {
 
     private static String reg(String name, double lat, double lon, double utcOffset) {
         LOCATIONS.put(name, new CityLocation(lat, lon, utcOffset));
+        RESOLVE.put(canon(name), name);
         return name;
     }
 
     private static String reg(String name, double lat, double lon, double utcOffset, String region) {
         LOCATIONS.put(name, new CityLocation(lat, lon, utcOffset, region));
+        RESOLVE.put(canon(name), name);
+        RESOLVE.put(canon(name + ", " + region), name);
         return name;
     }
 }
