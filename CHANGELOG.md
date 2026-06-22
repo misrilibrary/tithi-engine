@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
   Punim (Magh Purnima), Huri Aukdoh, Huri Ashtami.
   Teil Ashtami, Holi, Sonth, Thal Barun (Navreh). **39 built-in festivals total.**
 
+### Fixed
+- Festival/date finder no longer mis-attributes a *previous* month's kshaya Purnima/Amavasya to the next month's span (e.g. `getDates(Pausha, Shukla, 15)` wrongly returning Margashirsha purnima dates). Boundary-kshaya now applies only to paksha-leading tithis (Pratipada).
+
 ### Changed
 - **Nishita Kaal muhurta window** now uses the precise classical definition —
   the **8th of the night's 15 muhurtas** (the central muhurta) — instead of the

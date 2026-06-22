@@ -59,8 +59,16 @@ class TithiFinder {
                 } else if (lastSeen != null) {
                     break;
                 } else if (prevT > 0 && isKshaya(prevT, targetTithi, currentTithi)) {
-                    lastSeen = dt.minusDays(1); // kshaya
-                    break;
+                    // Kshaya: target tithi skipped, observe the previous day. But if that
+                    // day falls BEFORE this span, the skipped tithi belongs to the previous
+                    // month (e.g. the prior Purnima/Amavasya going kshaya at the boundary);
+                    // only a paksha-leading tithi (Pratipada, 1 or 16) legitimately starts a
+                    // span via the previous day. Otherwise it's a boundary artifact — skip.
+                    LocalDate obs = dt.minusDays(1);
+                    if (!obs.isBefore(span.start) || targetTithi == 1 || targetTithi == 16) {
+                        lastSeen = obs;
+                        break;
+                    }
                 }
                 prevT = currentTithi;
             }
