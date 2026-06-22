@@ -64,4 +64,14 @@ public final class PanchangAt {
     public List<FestivalDate> recurringDates(Festival fest, int year) {
         return p.recurringDates(fest, year, loc.key());
     }
+
+    /** See {@link Panchang#sunrise(LocalDate, String)}. */
+    public Instant sunrise(LocalDate date) {
+        return p.sunrise(date, loc.key());
+    }
+
+    /** See {@link Panchang#sunset(LocalDate, String)}. */
+    public Instant sunset(LocalDate date) {
+        return p.sunset(date, loc.key());
+    }
 }

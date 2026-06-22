@@ -184,6 +184,23 @@ public class Panchang {
     }
 
     /**
+     * Sunrise as a UTC {@link Instant} for {@code date} at {@code city}.
+     *
+     * <p>Meeus astronomy (~1-minute accuracy); there is <b>no</b> per-city correction
+     * (the correction tables adjust tithi, not sun times). Convert to local time using
+     * the city's offset. Throws {@link IllegalArgumentException} if the city is unknown.
+     * At extreme latitudes on a no-sunrise day the value is a clamped approximation.
+     */
+    public Instant sunrise(LocalDate date, String city) {
+        return Astronomy.computeSunrise(date, City.getLocation(city)).toInstant(ZoneOffset.UTC);
+    }
+
+    /** Sunset as a UTC {@link Instant} for {@code date} at {@code city}. See {@link #sunrise}. */
+    public Instant sunset(LocalDate date, String city) {
+        return Astronomy.computeSunset(date, City.getLocation(city)).toInstant(ZoneOffset.UTC);
+    }
+
+    /**
      * Bind this Panchang to a {@link Location} (a registered city or raw
      * coordinates), returning a view whose methods drop the {@code city} argument.
      *

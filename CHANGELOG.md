@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] — 2026-06-22
+
+### Added
+- **Sunrise/sunset** in the public API: `Panchang.sunrise(date, city)` and
+  `Panchang.sunset(date, city)` (also on `Panchang.at(location)`), returning UTC
+  `Instant`s. Meeus astronomy (~1-minute accuracy); no per-city correction (the
+  tables adjust tithi, not sun times). Inherits strict city resolution.
+
 ## [3.0.1] — 2026-06-22
 
 ### Fixed
