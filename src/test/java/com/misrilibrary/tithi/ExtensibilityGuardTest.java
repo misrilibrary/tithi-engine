@@ -58,7 +58,7 @@ class ExtensibilityGuardTest {
     }
 
     @Test
-    @DisplayName("Every City String constant must be in City.supported()")
+    @DisplayName("Every City constant must be in City.supported()")
     void allCityConstantsRegistered() {
         Set<String> supported = City.supported();
 
@@ -67,11 +67,11 @@ class ExtensibilityGuardTest {
             if (Modifier.isPublic(f.getModifiers())
                     && Modifier.isStatic(f.getModifiers())
                     && Modifier.isFinal(f.getModifiers())
-                    && f.getType() == String.class) {
+                    && f.getType() == City.class) {
                 try {
-                    String value = (String) f.get(null);
-                    if (!supported.contains(value)) {
-                        missing.add(f.getName() + " = \"" + value + "\"");
+                    City value = (City) f.get(null);
+                    if (!supported.contains(value.name())) {
+                        missing.add(f.getName() + " = \"" + value.name() + "\"");
                     }
                 } catch (Exception e) {
                     missing.add(f.getName() + " (could not read)");
@@ -82,6 +82,6 @@ class ExtensibilityGuardTest {
         assertTrue(missing.isEmpty(),
                 "City constants declared but NOT registered: " + missing + "\n\n"
                 + "HOW TO FIX: In City.java, use reg() to declare your constant:\n"
-                + "    public static final String YOUR_CITY = reg(\"Your City\", lat, lon, utcOffset);\n");
+                + "    public static final City YOUR_CITY = reg(\"Your City\", lat, lon, utcOffset);\n");
     }
 }

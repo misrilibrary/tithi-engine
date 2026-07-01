@@ -2,6 +2,83 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0] — 2026-07-01
+
+Breaking cutover to the typed value API (mirroring Dart `5.0.0`/`5.1.1`) **plus**
+the engine-revision `r3` **DATA** cutover — full Swiss-Ephemeris (`.se1`) parity
+with Dart `5.1.x`. The Meeus/VSOP87 astronomy is untouched.
+
+### Added
+- **`SunriseConvention` toggle** (`model.SunriseConvention`): `UPPER_LIMB`
+  (−0.833°, default) / `CENTER_DISC` (−0.5667°), threaded through `Astronomy` and
+  `Panchang`/`PanchangAt` (`Panchang(MonthSystem, SunriseConvention)`).
+- **`Tithi` value type** (`model.Tithi`): `Tithi.shukla(1..15)`,
+  `Tithi.krishna(1..15)`, `Tithi.ofNumber(1..30)`; `number()`/`name()`/
+  `paksha()`/`dayInPaksha()`.
+- **`City` typed value class**: the `City.*` constants are `City` instances (not
+  `String`); `City.of(name)` (throws), `City.tryOf(name)` (nullable),
+  `City.values()`, and instance `name()`/`region()`/`qualifiedName()`/
+  `displayName()`.
+- **Typed finders**: `findDate(LunarMonth, Tithi, int year, City)`,
+  `findDates(...)`, `findNext(LunarMonth, Tithi, City, LocalDate from)`.
+- **Center-disc correction tables** for all cities (`<key>.center.json`), loaded
+  by `CityCorrections.forCity(city, SunriseConvention.CENTER_DISC)`. Previously
+  any non-upper-limb convention fell back to pure Meeus; it now uses the
+  Swiss-validated center-disc tables (Meeus fallback only when a table is absent).
+- **Global transition-correction list** populated
+  (`GlobalTransitionCorrections`, 16,266 deltas) — transcoded verbatim from the
+  Dart `global_transition_corrections.g.dart`. Shipped as the classpath resource
+  `/corrections/global_transitions.csv` (an inline array literal of this size
+  exceeds the JVM 64 KB method-bytecode limit).
+- **15 new cities** (245 total): Louisville, Lexington, Columbia, Charleston,
+  Greenville, Cleveland, Edison, Jersey City, Ashburn, Fairfax, Rockville,
+  Stamford, San Antonio, Milwaukee, Buffalo.
+
+### Changed
+- **Iterative sunrise/sunset** (engine code → `r3`): `Astronomy.computeSunrise`/
+  `computeSunset` now do the Dart 3-iteration refinement (declination/EOT
+  re-evaluated at the rise/set instant, `Duration` day-carry, full sub-minute
+  resolution).
+- **`FestivalDate.month`/`isAdhika`** now carry the actual occurrence month for
+  recurring festivals (resolved from the occurrence date, not the `Festival`
+  placeholder), fixing the recurring-festival month bug; getters `getMonth()`/
+  `isAdhika()`.
+- **Upper-limb per-city tables re-ported to `r3`**: per-city transition, purnima,
+  and amavasya maps are now empty — tithi-transition instants are corrected by
+  the single global (city-independent) table, and purnima/amavasya boundary days
+  derive from the corrected day-tithi.
+- **`tithiSegments` / `tithiAtInstant` now label by segment-midpoint elongation**
+  over globally-corrected transition boundaries (matching Dart `r3`
+  `tithi_calculator.dart`), replacing the `r2` per-city transition-snapping +
+  sunrise-anchor ±1 stepping. Transition bisection tightened to 1 s (from 30 s)
+  to match Dart.
+
+### Verified
+- Java ⟷ Dart `5.1.x` parity on corrected output, gate = 0 mismatches:
+  - `tithiOnDate` upper-limb: 0 / 17,986,430 (245 cities × 73,414 days, 1900–2100).
+  - `tithiOnDate` center-disc: 0 / 17,986,430.
+  - `tithiSegments` (245 cities × 400 days) + `tithiAtInstant` (24-city 3-hourly
+    grid, 1,122,048 instants): 0 whole-tithi mismatches.
+- `./gradlew build` green (147 tests).
+
+### Breaking changes
+- **Every city-keyed public method now takes `City`** (not `String`), and every
+  tithi spec takes `Tithi` (not `Paksha`+`int`). Relative to `3.1.0`:
+  `tithiOnDate`, `tithiAtInstant`, `tithiSegments`, `dateFor`, `recurringDates`,
+  `sunrise`, `sunset`, `findDate`, `findDates`, `findNext` all take `City`/`Tithi`.
+  Migrate `"Ujjain"` → `City.of("Ujjain")` (or `City.UJJAIN`) and
+  `Paksha.SHUKLA, 8` → `Tithi.shukla(8)`. `getDate(...)`/`getDates(...)` are
+  removed — use `findDate(...)`/`findDates(...)`.
+- **`CityLocation` and `City.getLocation` are internalized** (package-private,
+  no longer part of the public API), mirroring Dart 5.0/5.1.1. The engine
+  resolves a city's coordinates itself; callers address places via `City` /
+  `Location`.
+
+### Notes
+- The Meeus/VSOP87 astronomy is unchanged and byte-identical to Dart; only the
+  correction DATA and its wiring changed. Engine code + DATA revision is now `r3`
+  (full `.se1` parity for both sunrise conventions).
+
 ## [3.1.0] — 2026-06-22
 
 ### Added

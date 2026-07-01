@@ -31,7 +31,7 @@ public class FestivalVerification {
                 String key = fest.id + "_" + year;
                 String expected = truth.get(key);
                 if (expected == null) continue;
-                FestivalDate gotFd = panchang.dateFor(fest, year, "Ujjain");
+                FestivalDate gotFd = panchang.dateFor(fest, year, City.of("Ujjain"));
                 LocalDate got = gotFd == null ? null : gotFd.getDate();
                 String gotStr = got != null ? got.toString() : "null";
                 if (gotStr.equals(expected)) {

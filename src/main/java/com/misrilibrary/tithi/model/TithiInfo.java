@@ -4,7 +4,7 @@ package com.misrilibrary.tithi.model;
  * Immutable result of a tithi lookup — contains the tithi number, name, paksha,
  * lunar month, and a human-readable display string.
  *
- * <p>Returned by {@link com.misrilibrary.tithi.Panchang#forDate}.
+ * <p>Returned by {@link com.misrilibrary.tithi.Panchang#tithiOnDate}.
  */
 public class TithiInfo {
     private final int tithiNumber;       // 1-30

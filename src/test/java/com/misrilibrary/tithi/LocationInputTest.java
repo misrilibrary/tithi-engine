@@ -33,7 +33,7 @@ class LocationInputTest {
     void coordMatchesCity() {
         CityLocation ny = City.getLocation("New York");
         TithiInfo byCoord = p.at(Location.at(ny.getLatitude(), ny.getLongitude())).tithiOnDate(date);
-        assertEquals(p.tithiOnDate(date, "New York").getDisplayName(), byCoord.getDisplayName());
+        assertEquals(p.tithiOnDate(date, City.of("New York")).getDisplayName(), byCoord.getDisplayName());
     }
 
     @Test @DisplayName("off-grid coordinate is Meeus-only and requires an offset")

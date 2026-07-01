@@ -119,25 +119,23 @@ class BranchCoverageTest {
 
     // ═══ LunarMonthResolver.correctAmavasya/correctPurnima: correction applied ═══
 
-    @Test @DisplayName("Purnima correction applied — exercises corrected != null return")
+    @Test @DisplayName("Purnima corrections are empty in r3; resolver still builds spans")
     void purnimaCorrection() {
-        // Under the accurate (VSOP87/ΔT) engine most cities need no purnima
-        // boundary corrections; pick one that still does and query the year of an
-        // actual correction so the correctPurnima non-null branch is exercised.
+        // r3 DATA: purnima/amavasya boundary DAYS are derived from the corrected
+        // day-tithi, so per-city purnima correction maps are empty. The resolver
+        // still produces month spans via the (global-corrected) tithi path.
         CityCorrections corr = CityCorrections.forCity("Adelaide");
-        assertFalse(corr.getPurnimaCorrections().isEmpty());
-        int dayIndex = corr.getPurnimaCorrections().keySet().iterator().next();
-        int year = LocalDate.of(1900, 1, 1).plusDays(dayIndex).getYear();
+        assertTrue(corr.getPurnimaCorrections().isEmpty());
         LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.PURNIMANT, "Adelaide");
-        List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(year);
+        List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(2026);
         assertFalse(spans.isEmpty());
     }
 
-    @Test @DisplayName("Amavasya correction applied — exercises corrected != null return")
+    @Test @DisplayName("Amavasya corrections are empty in r3; resolver still builds spans")
     void amavasyaCorrection() {
         CityCorrections corr = CityCorrections.forCity("Srinagar");
-        assertFalse(corr.getAmavasyaCorrections().isEmpty());
-        // Amant system uses amavasya boundaries — forces correctAmavasya calls
+        assertTrue(corr.getAmavasyaCorrections().isEmpty());
+        // Amant system uses amavasya boundaries — still builds via the tithi path.
         LunarMonthResolver resolver = new LunarMonthResolver(MonthSystem.AMANT, "Srinagar");
         List<LunarMonthResolver.MonthSpan> spans = resolver.getSpansForYear(2026);
         assertFalse(spans.isEmpty());
@@ -149,11 +147,11 @@ class BranchCoverageTest {
     void getDateAdhikaFiltering() {
         Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
         // Jyeshtha Shukla 1 in 2026 — exists in both adhika and regular Jyeshtha
-        // getDates should return the non-adhika one by default
-        List<LocalDate> dates = panchang.getDates(LunarMonth.JYESHTHA, Paksha.SHUKLA, 1, 2026, "Ujjain");
+        // findDates should return the non-adhika one by default
+        List<LocalDate> dates = panchang.findDates(LunarMonth.JYESHTHA, Tithi.shukla(1), 2026, City.of("Ujjain"));
         assertFalse(dates.isEmpty());
         // Verify we got the regular (non-adhika) month
-        TithiInfo info = panchang.tithiOnDate(dates.get(0), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(dates.get(0), City.of("Ujjain"));
         assertEquals(LunarMonth.JYESHTHA, info.getMonth());
     }
 
@@ -161,7 +159,7 @@ class BranchCoverageTest {
     void finderAcrossYearBoundary() {
         Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
         // Pausha in early January — month spans year boundary
-        List<LocalDate> dates = panchang.getDates(LunarMonth.PAUSHA, Paksha.KRISHNA, 5, 2026, "Ujjain");
+        List<LocalDate> dates = panchang.findDates(LunarMonth.PAUSHA, Tithi.krishna(5), 2026, City.of("Ujjain"));
         assertFalse(dates.isEmpty());
         // Date should be in late Dec 2025 or early Jan 2026
         LocalDate d = dates.get(0);
@@ -186,12 +184,12 @@ class BranchCoverageTest {
     void allMuhurtaTypes() {
         Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
         // NISHITA
-        assertNotNull(panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, "Ujjain"));
+        assertNotNull(panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.of("Ujjain")));
         // PRADOSH
-        assertNotNull(panchang.dateFor(Festival.DIWALI, 2026, "Ujjain"));
+        assertNotNull(panchang.dateFor(Festival.DIWALI, 2026, City.of("Ujjain")));
         // MADHYAHNA
-        assertNotNull(panchang.dateFor(Festival.RAM_NAVAMI, 2026, "Ujjain"));
+        assertNotNull(panchang.dateFor(Festival.RAM_NAVAMI, 2026, City.of("Ujjain")));
         // SUNRISE
-        assertNotNull(panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, "Ujjain"));
+        assertNotNull(panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, City.of("Ujjain")));
     }
 }

@@ -59,10 +59,10 @@ class BoundaryVerificationTest {
     private void assertPurnimantBoundaries(String city, int year) {
         int checked = 0;
         for (LocalDate d = LocalDate.of(year, 1, 1); d.getYear() == year; d = d.plusDays(1)) {
-            TithiInfo info = panchangP.tithiOnDate(d, city);
+            TithiInfo info = panchangP.tithiOnDate(d, City.of(city));
             if (info.getTithiNumber() == 15 && !info.isAdhika()) {
                 LocalDate next = d.plusDays(1);
-                TithiInfo nextInfo = panchangP.tithiOnDate(next, city);
+                TithiInfo nextInfo = panchangP.tithiOnDate(next, City.of(city));
                 if (nextInfo.getPaksha() == Paksha.KRISHNA) {
                     LunarMonth expected = info.getMonth().next();
                     assertEquals(expected, nextInfo.getMonth(),
@@ -79,10 +79,10 @@ class BoundaryVerificationTest {
     private void assertAmantBoundaries(String city, int year) {
         int checked = 0;
         for (LocalDate d = LocalDate.of(year, 1, 1); d.getYear() == year; d = d.plusDays(1)) {
-            TithiInfo info = panchangA.tithiOnDate(d, city);
+            TithiInfo info = panchangA.tithiOnDate(d, City.of(city));
             if (info.getTithiNumber() == 30 && !info.isAdhika()) {
                 LocalDate next = d.plusDays(1);
-                TithiInfo nextInfo = panchangA.tithiOnDate(next, city);
+                TithiInfo nextInfo = panchangA.tithiOnDate(next, City.of(city));
                 if (nextInfo.getPaksha() == Paksha.SHUKLA) {
                     LunarMonth expected = info.getMonth().next();
                     assertTrue(nextInfo.getMonth() == expected || nextInfo.isAdhika(),
@@ -137,7 +137,7 @@ class BoundaryVerificationTest {
                 String key = fest.id + "_" + year;
                 String expected = truth.get(key);
                 if (expected == null) continue;
-                FestivalDate gotFd = panchangP.dateFor(fest, year, city);
+                FestivalDate gotFd = panchangP.dateFor(fest, year, City.of(city));
                 LocalDate got = gotFd == null ? null : gotFd.getDate();
                 assertNotNull(got, fest.name + " " + year + " " + city);
                 assertEquals(expected, got.toString(),
@@ -214,7 +214,7 @@ class BoundaryVerificationTest {
     void kshayaYear1963() {
         Set<String> months = new HashSet<>();
         for (LocalDate d = LocalDate.of(1963, 1, 1); d.getYear() == 1963; d = d.plusDays(1)) {
-            TithiInfo info = panchangA.tithiOnDate(d, "Ujjain");
+            TithiInfo info = panchangA.tithiOnDate(d, City.of("Ujjain"));
             String label = (info.isAdhika() ? "A." : "") + info.getMonth().getDisplayName();
             months.add(label);
         }
@@ -244,7 +244,7 @@ class BoundaryVerificationTest {
             int expectedTithi = (int) c[2];
             LunarMonth expectedMonth = (LunarMonth) c[3];
             boolean expectedAdhika = (boolean) c[4];
-            TithiInfo info = panchangP.tithiOnDate(date, city);
+            TithiInfo info = panchangP.tithiOnDate(date, City.of(city));
             assertEquals(expectedTithi, info.getTithiNumber(),
                     date + " " + city + ": tithi");
             assertEquals(expectedMonth, info.getMonth(),
@@ -269,7 +269,7 @@ class BoundaryVerificationTest {
             LocalDate date = (LocalDate) c[0];
             String city = (String) c[1];
             LunarMonth expectedMonth = (LunarMonth) c[2];
-            TithiInfo info = panchangP.tithiOnDate(date, city);
+            TithiInfo info = panchangP.tithiOnDate(date, City.of(city));
             assertEquals(expectedMonth, info.getMonth(),
                     date + " " + city + ": expected " + expectedMonth.getDisplayName()
                     + " got " + info.getMonth().getDisplayName());
@@ -289,12 +289,12 @@ class BoundaryVerificationTest {
         };
         for (Panchang panchang : new Panchang[]{panchangP, panchangA}) {
             for (LocalDate dt : dates) {
-                TithiInfo info = panchang.tithiOnDate(dt, city);
-                // Use getDate for non-adhika months
+                TithiInfo info = panchang.tithiOnDate(dt, City.of(city));
+                // Use findDate for non-adhika months
                 if (!info.isAdhika()) {
-                    LocalDate found = panchang.getDate(info.getMonth(), info.getPaksha(),
-                            info.getTithiInPaksha(), dt.getYear(), city);
-                    TithiInfo fi = panchang.tithiOnDate(found, city);
+                    LocalDate found = panchang.findDate(info.getMonth(), Tithi.ofNumber(info.getTithiNumber()),
+                            dt.getYear(), City.of(city));
+                    TithiInfo fi = panchang.tithiOnDate(found, City.of(city));
                     assertEquals(info.getTithiNumber(), fi.getTithiNumber(),
                             city + " " + dt + " " + panchang.getMonthSystem() + ": tithi mismatch");
                     assertEquals(info.getMonth(), fi.getMonth(),

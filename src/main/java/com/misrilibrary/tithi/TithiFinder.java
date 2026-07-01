@@ -16,10 +16,16 @@ class TithiFinder {
 
     private final LunarMonthResolver resolver;
     private final String city;
+    private final SunriseConvention convention;
 
     public TithiFinder(MonthSystem system, String city) {
-        this.resolver = new LunarMonthResolver(system, city);
+        this(system, city, SunriseConvention.UPPER_LIMB);
+    }
+
+    public TithiFinder(MonthSystem system, String city, SunriseConvention convention) {
+        this.resolver = new LunarMonthResolver(system, city, convention);
         this.city = city;
+        this.convention = convention;
     }
 
     /** Find all dates a tithi occurs in a year. Usually returns 1 date. */
@@ -48,7 +54,7 @@ class TithiFinder {
             // Start one day before span to detect kshaya at span start
             LocalDate loopStart = span.start.minusDays(1);
             for (LocalDate dt = loopStart; dt.isBefore(span.end); dt = dt.plusDays(1)) {
-                LocalDateTime sr = Astronomy.computeSunrise(dt, loc);
+                LocalDateTime sr = Astronomy.computeSunrise(dt, loc, convention);
                 int currentTithi = Astronomy.tithiAt(sr);
                 if (dt.isBefore(span.start)) {
                     prevT = currentTithi;

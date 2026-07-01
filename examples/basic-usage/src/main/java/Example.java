@@ -1,6 +1,7 @@
 import com.misrilibrary.tithi.*;
 import com.misrilibrary.tithi.model.*;
 import java.time.LocalDate;
+import java.util.Comparator;
 
 /**
  * Basic usage example for tithi-engine.
@@ -24,14 +25,15 @@ public class Example {
         FestivalDate diwali = panchang.dateFor(Festival.DIWALI, 2026, City.SEATTLE);
         System.out.println("Diwali 2026 (Seattle): " + diwali.getDate());
 
-        // 3. Tithi → Date
-        LocalDate janmashtami = panchang.getDate(LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, 2026, City.SEATTLE);
+        // 3. Tithi → Date (typed: LunarMonth + Tithi + City)
+        LocalDate janmashtami = panchang.findDate(
+            LunarMonth.BHADRAPADA, Tithi.krishna(8), 2026, City.SEATTLE);
         System.out.println("Janmashtami 2026 (Seattle): " + janmashtami);
 
-        // 4. List all supported cities (with display-name qualification)
-        System.out.println("\nSupported cities (" + City.supported().size() + "): ");
-        City.supported().stream().sorted().limit(10)
-            .forEach(c -> System.out.print(City.qualifiedName(c) + ", "));
+        // 4. List all supported cities (typed City values, display-name qualified)
+        System.out.println("\nSupported cities (" + City.values().size() + "): ");
+        City.values().stream().sorted(Comparator.comparing(City::name)).limit(10)
+            .forEach(c -> System.out.print(c.qualifiedName() + ", "));
         System.out.println("...");
 
         // 5. All festivals

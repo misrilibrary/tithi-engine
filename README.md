@@ -11,7 +11,7 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 - **Festival dates** — muhurta-accurate (nishita, madhyahna, pradosh rules)
 - **Month resolution** — moment-based adhika/kshaya detection, Purnimant & Amant systems
 - **Date finding** — tithi → Gregorian date in any year
-- **230 cities** — per-city correction tables verified against Swiss Ephemeris
+- **245 cities** — per-city correction tables verified against Swiss Ephemeris (upper-limb + center-disc)
 - **Pure Java 17** — no external dependencies, works on Android/server/desktop
 - **200-year accuracy** — validated 1900–2100 against Drik Panchang
 
@@ -19,12 +19,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:3.0.0")
+implementation("io.github.misrilibrary:tithi-engine:4.0.0")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:3.0.0'
+implementation 'io.github.misrilibrary:tithi-engine:4.0.0'
 ```
 
 **Maven:**
@@ -32,7 +32,7 @@ implementation 'io.github.misrilibrary:tithi-engine:3.0.0'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>3.0.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
@@ -54,14 +54,14 @@ FestivalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.
 System.out.println("Maha Shivaratri 2026: " + shivaratri.getDate()); // 2026-02-15
 
 // Tithi → Date
-LocalDate date = panchang.getDate(LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, 2026, City.SEATTLE);
+LocalDate date = panchang.findDate(LunarMonth.BHADRAPADA, Tithi.krishna(8), 2026, City.SEATTLE);
 System.out.println("Janmashtami 2026 Seattle: " + date);
 
 // Exact-moment (birth-time) tithi: pass a true UTC instant + the DST-aware offset in effect
 import java.time.*;
 ZoneOffset cdt = ZoneOffset.ofHours(-5);
 Instant birth = LocalDateTime.of(2006, 5, 30, 20, 0).toInstant(cdt); // 8 PM CDT
-TithiInfo birthTithi = panchang.tithiAtInstant(birth, "Austin", cdt);
+TithiInfo birthTithi = panchang.tithiAtInstant(birth, City.of("Austin"), cdt);
 ```
 
 ## API
@@ -75,25 +75,32 @@ in effect (the library does no timezone resolution).
 | `panchang.tithiOnDate(date, city)` | Sunrise tithi of the panchang day (display/observance) |
 | `panchang.tithiAtInstant(utcInstant, city, offset)` | Tithi at an exact UTC moment (birth-time) |
 | `panchang.tithiSegments(startUtc, endUtc, city, offset)` | Every tithi segment in a UTC window (N transitions → N+1 segments) |
-| `panchang.getDate(month, paksha, tithi, year, city)` | Tithi spec → Gregorian date (`null` if none) |
-| `panchang.getDates(month, paksha, tithi, year, city)` | Tithi spec → all dates (adhika-aware) |
-| `panchang.findNext(month, paksha, tithi, city, from)` | Next occurrence of a tithi from a date |
-| `panchang.dateFor(festival, year, city)` | Festival → `FestivalDate` (date + tithi span + muhurta window) |
+| `panchang.findDate(month, tithi, year, city)` | Tithi spec → Gregorian date (`null` if none) |
+| `panchang.findDates(month, tithi, year, city)` | Tithi spec → all dates (adhika-aware) |
+| `panchang.findNext(month, tithi, city, from)` | Next occurrence of a tithi from a date |
+| `panchang.dateFor(festival, year, city)` | Festival → `FestivalDate` (date + tithi span + muhurta window + occurrence month/adhika) |
 | `panchang.recurringDates(festival, year, city)` | Recurring festival → all occurrences in the year |
 | `panchang.at(location)` | Bind to a `Location` (city name or raw `lat/lng`) → `PanchangAt` (same methods, no `city` arg) |
 | `panchang.sunrise(date, city)` / `sunset(date, city)` | Sunrise/sunset UTC `Instant` (Meeus, ~1 min; no per-city correction) |
 | `City.qualifiedName(name)` / `City.displayName(name)` | Display labels (always-qualified / selective) |
 | `TithiInfo.fromStored(...)` | Render a saved tithi (optional Purnimant↔Amant display conversion) |
 
+Every `city` argument is a **`City`** value (`City.UJJAIN`, or `City.of("Ujjain")` /
+`City.tryOf(name)`); every tithi spec is a **`Tithi`** (`Tithi.shukla(8)`,
+`Tithi.krishna(11)`, `Tithi.ofNumber(23)`). A `Panchang` can also take a
+`SunriseConvention` (`new Panchang(MonthSystem.PURNIMANT, SunriseConvention.CENTER_DISC)`);
+the default `UPPER_LIMB` reproduces the classic Sūryodaya behavior.
+
 ### City names
 
-Every method takes a `city` name. Resolution is **case- and space-insensitive** and
-accepts the qualified `"City, Region"` form, so all of these resolve to the same city:
+Every method takes a `City`. Resolution via `City.of(name)` / `City.tryOf(name)`
+is **case- and space-insensitive** and accepts the qualified `"City, Region"` form,
+so all of these resolve to the same city:
 
 ```java
-City.getLocation("New York");      // canonical
-City.getLocation("new york");      // case-insensitive
-City.getLocation("New York, NY");  // qualified form (as City.qualifiedName emits)
+City.of("New York");      // canonical
+City.of("new york");      // case-insensitive
+City.of("New York, NY");  // qualified form (as City.qualifiedName emits)
 ```
 
 The canonical identity is the **(city, region)** pair: the bare name maps to the
@@ -102,10 +109,11 @@ specific one when several share a name (e.g. a future `"Vancouver, WA"` vs
 `"Vancouver, BC"`). There is **no fuzzy/region-stripping match** — a wrong region
 (`"Vancouver, WA"` when only BC exists) is treated as unknown.
 
-An **unsupported city throws `IllegalArgumentException`** — the engine never silently
-substitutes another location, because a wrong location produces wrong sunrise-based
-tithis and festival dates. To check without throwing, use `City.resolveName(name)`
-(returns `null` if unsupported) or inspect `City.supported()`. Need a city added?
+An **unsupported city throws `IllegalArgumentException`** (from `City.of(name)`) — the
+engine never silently substitutes another location, because a wrong location produces
+wrong sunrise-based tithis and festival dates. To check without throwing, use
+`City.tryOf(name)` / `City.resolveName(name)` (return `null` if unsupported) or inspect
+`City.values()` / `City.supported()`. Need a city added?
 Open an issue: <https://github.com/misrilibrary/tithi-engine/issues>.
 
 ### By coordinates
@@ -132,7 +140,7 @@ panchang.at(Location.city("Seattle")).tithiOnDate(LocalDate.of(2026, 2, 15));
 ```
 
 `PanchangAt` exposes the same read methods as `Panchang` minus the `city` argument
-(`tithiOnDate`, `tithiAtInstant`, `tithiSegments`, `getDate(s)`, `findNext`, `dateFor`,
+(`tithiOnDate`, `tithiAtInstant`, `tithiSegments`, `findDate(s)`, `findNext`, `dateFor`,
 `recurringDates`). Cities are stored at ~0.1° (~11 km), so any point within a city's cell
 is treated as that city; see `City.cityForCell(lat,lng)`.
 
@@ -189,7 +197,7 @@ Shukla Ekadashi, Purnima, Amavasya.
 One file: `City.java`. Add a single line using `reg()`:
 
 ```java
-public static final String RISHIKESH = reg("Rishikesh", 30.1, 78.3, 5.5);
+public static final City RISHIKESH = reg("Rishikesh", 30.1, 78.3, 5.5);
 ```
 
 This simultaneously creates the constant and registers the city with coordinates. That's it.
@@ -210,27 +218,31 @@ src/main/java/com/misrilibrary/tithi/
 ├── Panchang.java             ← Public API (single entry point)
 ├── Festival.java             ← Festival definitions + registry
 ├── City.java                 ← City constants + registry (single file)
-├── Astronomy.java            ← VSOP87 Sun + Meeus Moon (TT/ΔT), sunrise/sunset
+├── Astronomy.java            ← VSOP87 Sun + Meeus Moon (TT/ΔT), iterative sunrise/sunset
+├── CityLocation.java         ← Internal (package-private) city coords/offset
 ├── LunarMonthResolver.java   ← Month naming (adhika/kshaya/double Purnima)
 ├── TithiFinder.java          ← Internal: find tithi date in year
 ├── TithiUtils.java           ← Names, paksha helpers
 ├── MonthConverter.java       ← Purnimant ↔ Amant
-├── model/                    ← TithiInfo, CityLocation, enums
+├── model/                    ← TithiInfo, Tithi, SunriseConvention, enums
 └── data/
-    └── CityCorrections.java  ← Lazy JSON correction loader
+    ├── CityCorrections.java          ← Lazy JSON correction loader
+    └── GlobalTransitionCorrections.java ← Global transition-correction hook (empty until DATA)
 
 src/main/resources/corrections/
 ├── ujjain.json               ← Swiss-verified correction table
 ├── srinagar.json
 ├── seattle.json
-└── ... (230 cities)
+└── ... (245 cities, each with a .center.json for center-disc)
 ```
 
 ## Accuracy
 
 | Metric | Value |
 |--------|-------|
-| Tithi vs Swiss Ephemeris | 0 mismatches / 73,414 days × 230 cities (1900–2100) |
+| Tithi vs Swiss Ephemeris (upper-limb) | 0 mismatches / 73,414 days × 245 cities (1900–2100) |
+| Tithi vs Swiss Ephemeris (center-disc) | 0 mismatches / 73,414 days × 245 cities (1900–2100) |
+| Java ⟷ Dart engine parity | 0 mismatches / 17,986,430 tithiOnDate points per convention |
 | Month boundaries (Purnimant) | 100% (200 years, verified cities) |
 | Festival dates vs Drik Panchang | 22/22 (2025–2026) |
 | Meeus fallback (no correction table) | ~99.9% |
@@ -238,29 +250,65 @@ src/main/resources/corrections/
 
 > **Note:** The Maven group ID is `io.github.misrilibrary` but the Java package is `com.misrilibrary.tithi`. This is intentional and standard practice — the two don't need to match.
 
+## Performance
+
+Latency of a **month-grid render** — a fresh `Panchang` plus one `tithiOnDate`
+call per day of a 31-day month (the app's per-render worst case), 50 repeats
+after warm-up. Measured on the same machine (Apple Silicon; JDK 21, Dart 3.12)
+against the Dart companion for a like-for-like comparison.
+
+| Celebration city | Java `4.0.0` | Dart `5.1.1` |
+|---|---|---|
+| Ujjain (India) | 5,123 µs/grid · 165 µs/day | 2,763 µs/grid · 89 µs/day |
+| Tokyo (Japan) | 5,023 µs/grid · 162 µs/day | 2,690 µs/grid · 87 µs/day |
+| Seattle (US) | 5,111 µs/grid · 165 µs/day | 2,665 µs/grid · 86 µs/day |
+
+A full month renders in **~5 ms** (Java) / ~2.7 ms (Dart) — well under a frame at
+any list size. The three cities span India/Japan/US correction tables and land
+within a few percent of each other (the per-city table size barely matters).
+
+> **Absolute numbers are machine-dependent.** This is the cold-ish "fresh
+> `Panchang` per grid" pattern; reusing a single `Panchang` (the resolver/
+> correction caches stay warm) is substantially faster. Java runs ~1.9× the Dart
+> time here — expected for the JVM object-per-grid pattern vs Dart AOT — but both
+> are sub-200 µs/day, so a rendered month is imperceptible either way.
+
 ## Cross-platform parity
 
 This is the Java implementation of [tithi-engine-dart](https://github.com/misrilibrary/tithi-engine-dart) (Dart). Both compute identical tithi/panchang results, validated against the Swiss Ephemeris.
 
 The two packages **version independently** — each version string is a semver compatibility contract for *that* ecosystem. What stays locked in step is the **astronomy engine revision** (the correctness-critical part) and the feature parity tracked below.
 
-- **Engine revision:** `r2` — VSOP87 Sun + Meeus Moon in Terrestrial Time (Espenak–Meeus ΔT), nutation cancelled in the Moon–Sun elongation. Java `1.1.0+` ⟷ Dart `2.1.0+`. Verified: regenerated tables byte-identical across both, 0 mismatches over 230 cities × 73,414 days.
+- **Engine revision:** `r3` (code **and** DATA) — VSOP87 Sun + Meeus Moon in Terrestrial Time (Espenak–Meeus ΔT), nutation cancelled in the Moon–Sun elongation, plus **iterative (3-pass) sunrise/sunset** and a **selectable `SunriseConvention`**. Java `4.0.0+` ⟷ Dart `4.3.0+`. As of Java `4.0.0` the `r3` **DATA** is shipped: the center-disc per-city correction tables and the global transition-correction list are transcoded verbatim from the Swiss-Ephemeris-validated Dart `5.1.x` data, so the Java engine reaches full `.se1` parity for both conventions. Java `4.0.0` ⟷ Dart `5.1.x` are byte-identical: **0 mismatches over 245 cities × 73,414 days (17,986,430 points) per convention**, plus 0 whole-tithi mismatches across the `tithiSegments`/`tithiAtInstant` sample.
 
 | Capability | Java (tithi-engine) | Dart (tithi_engine) |
 |---|---|---|
 | Astronomy engine rev `r2` (VSOP87/TT) | `1.1.0+` | `2.1.0+` |
-| 230 cities, Swiss-verified tables | `1.1.0+` | `2.1.0+` |
+| 245 cities, Swiss-verified tables | `1.1.0+` | `2.1.0+` |
 | City display-name disambiguation (`region` / `qualifiedName` / `displayName`) | `2.0.0+` | `2.2.0+` |
 | Time-aware API (`tithiOnDate` / `tithiAtInstant` / `tithiSegments`) | `2.0.0+` | `3.0.0+` |
 | `recurringDates` / `findNext` / `TithiInfo.fromStored` | `2.0.0+` | `2.0.0+` |
 | Strict city resolution (`resolveName`, fail-fast on unknown, `"City, Region"` form) | `3.0.0+` | `4.0.0+` |
 | Coordinate input (`Location` / `Panchang.at`, 0.1° cell reuse) | `3.0.0+` | `4.0.0+` |
 | Sunrise / sunset (`sunrise` / `sunset`, Meeus) | `3.1.0+` | `4.1.0+` |
+| `SunriseConvention` toggle (upper-limb / center-disc) | `4.0.0+` | `4.2.0+` |
+| Iterative sunrise/sunset + engine code rev `r3` | `4.0.0+` | `4.3.0+` |
+| Global transition-correction consumption hook | `4.0.0+` | `4.3.0+` |
+| `FestivalDate.month` / `isAdhika` (recurring-month fix) | `4.0.0+` | `4.3.1+` |
+| `Tithi` + `City` typed value API (typed `findDate`/`findDates`/`findNext`) | `4.0.0+` | `4.4.0+` |
+| Breaking typed cutover (`City`/`Tithi` everywhere, `CityLocation` internal) | `4.0.0+` | `5.0.0`/`5.1.1` |
+| Engine `r3` **DATA** (center-disc tables + global transition list; 245 cities) | `4.0.0+` | `4.2.0+`/`4.3.0+` |
 
 > **API generation:** Java `2.0.0` reaches feature parity with Dart `3.x` (the
 > time-aware, UTC-instant API). Java `3.0.0` ⟷ Dart `4.0.0` add strict city
 > resolution (unknown cities now throw — a behavior break) and coordinate input
-> (`Location` / `Panchang.at`); `3.1.0` ⟷ `4.1.0` add sunrise/sunset. The version
+> (`Location` / `Panchang.at`); `3.1.0` ⟷ `4.1.0` add sunrise/sunset. Java
+> Java `4.0.0` ports the Dart `4.2.0`–`5.1.1` surface — `SunriseConvention`,
+> iterative `r3` sunrise code, `FestivalDate.month`, and the `Tithi`+`City` typed
+> value API (breaking at Java `4.0.0` ⟷ Dart `5.0.0`/`5.1.1`). At Java
+> `4.0.0` the `r3` correction-table DATA (center-disc tables and the global
+> transition-correction list) is transcoded from the Dart `5.1.x` data, so the
+> Java engine reaches full `.se1` parity for both conventions. The version
 > numbers differ because each is its own ecosystem's semver.
 
 ## Building

@@ -20,6 +20,12 @@ class FestivalFinder {
 
     /** Find the correct festival date for a year and city, applying muhurta rules. */
     static FestivalDate findFestivalDate(Festival fest, int year, String city, TithiFinder purnimantFinder) {
+        return findFestivalDate(fest, year, city, purnimantFinder, SunriseConvention.UPPER_LIMB);
+    }
+
+    /** Find the correct festival date for a year and city, applying muhurta rules. */
+    static FestivalDate findFestivalDate(Festival fest, int year, String city, TithiFinder purnimantFinder,
+                                         SunriseConvention convention) {
         List<LocalDate> dates = purnimantFinder.findInYear(fest.month, fest.paksha, fest.tithiInPaksha, year, false);
         if (dates.isEmpty()) return null;
 
@@ -29,19 +35,19 @@ class FestivalFinder {
         // Apply muhurta rule: if D-1 has the target tithi at the muhurta moment, shift back.
         if (fest.muhurta != MuhurtaRule.SUNRISE) {
             LocalDate prev = d.minusDays(1);
-            LocalDateTime muhurtaTime = muhurtaUtc(prev, loc, fest.muhurta);
+            LocalDateTime muhurtaTime = muhurtaUtc(prev, loc, fest.muhurta, convention);
             if (Astronomy.tithiAt(muhurtaTime) == fest.getTithiNumber()) {
                 d = prev;
             }
         }
 
         int target = fest.getTithiNumber();
-        Instant tithiStart = utc(findTithiTransition(d, loc, target, true));
-        Instant tithiEnd = utc(findTithiTransition(d, loc, target, false));
+        Instant tithiStart = utc(findTithiTransition(d, loc, target, true, convention));
+        Instant tithiEnd = utc(findTithiTransition(d, loc, target, false, convention));
 
         Instant muhurtaStart = null, muhurtaEnd = null;
         if (fest.muhurta != MuhurtaRule.SUNRISE) {
-            LocalDateTime[] mw = muhurtaWindow(d, loc, fest.muhurta);
+            LocalDateTime[] mw = muhurtaWindow(d, loc, fest.muhurta, convention);
             muhurtaStart = utc(mw[0]);
             muhurtaEnd = utc(mw[1]);
         }
@@ -50,6 +56,17 @@ class FestivalFinder {
 
     /** Find all occurrences of a recurring tithi in a year (sunrise "last day" rule). */
     static List<FestivalDate> findRecurringDates(Festival fest, int year, String city) {
+        return findRecurringDates(fest, year, city, SunriseConvention.UPPER_LIMB,
+                new LunarMonthResolver(MonthSystem.PURNIMANT, city, SunriseConvention.UPPER_LIMB));
+    }
+
+    /**
+     * Find all occurrences of a recurring tithi in a year (sunrise "last day" rule).
+     * The occurrence month/adhika are resolved from {@code resolver} (mirroring
+     * Dart's {@code dayTithi.month/isAdhika}), not the {@link Festival} placeholder.
+     */
+    static List<FestivalDate> findRecurringDates(Festival fest, int year, String city,
+                                                 SunriseConvention convention, LunarMonthResolver resolver) {
         CityLocation loc = City.getLocation(city);
         int target = fest.getTithiNumber();
         List<FestivalDate> results = new ArrayList<>();
@@ -60,31 +77,36 @@ class FestivalFinder {
             if (d.getYear() != year && !(d.getYear() == year + 1 && d.getMonthValue() == 1 && d.getDayOfMonth() == 1)) {
                 break;
             }
-            int t = Astronomy.tithiAt(Astronomy.computeSunrise(d, loc));
+            int t = Astronomy.tithiAt(Astronomy.computeSunrise(d, loc, convention));
             if (t == target) {
                 lastSeen = d;
             } else if (lastSeen != null) {
-                results.add(buildRecurring(fest, lastSeen, loc, target));
+                results.add(buildRecurring(fest, lastSeen, loc, target, convention, resolver));
                 lastSeen = null;
             }
         }
-        if (lastSeen != null) results.add(buildRecurring(fest, lastSeen, loc, target));
+        if (lastSeen != null) results.add(buildRecurring(fest, lastSeen, loc, target, convention, resolver));
         return results;
     }
 
-    private static FestivalDate buildRecurring(Festival fest, LocalDate date, CityLocation loc, int target) {
-        Instant ts = utc(findTithiTransition(date, loc, target, true));
-        Instant te = utc(findTithiTransition(date, loc, target, false));
-        return new FestivalDate(fest, date, ts, te, null, null);
+    private static FestivalDate buildRecurring(Festival fest, LocalDate date, CityLocation loc, int target,
+                                               SunriseConvention convention, LunarMonthResolver resolver) {
+        Instant ts = utc(findTithiTransition(date, loc, target, true, convention));
+        Instant te = utc(findTithiTransition(date, loc, target, false, convention));
+        // Resolve the ACTUAL occurrence month/adhika from the date (Dart uses
+        // dayTithi.month/isAdhika), not the FestivalDef placeholder month.
+        LunarMonthResolver.MonthInfo mi = resolver.getMonthInfo(date);
+        return new FestivalDate(fest, date, ts, te, null, null, mi.month, mi.adhika);
     }
 
     /** Representative UTC moment for a muhurta rule on a date. */
-    private static LocalDateTime muhurtaUtc(LocalDate date, CityLocation loc, MuhurtaRule rule) {
-        LocalDateTime sunrise = Astronomy.computeSunrise(date, loc);
-        LocalDateTime sunset = Astronomy.computeSunset(date, loc);
+    private static LocalDateTime muhurtaUtc(LocalDate date, CityLocation loc, MuhurtaRule rule,
+                                            SunriseConvention convention) {
+        LocalDateTime sunrise = Astronomy.computeSunrise(date, loc, convention);
+        LocalDateTime sunset = Astronomy.computeSunset(date, loc, convention);
         switch (rule) {
             case NISHITA:
-                LocalDateTime nextSunrise = Astronomy.computeSunrise(date.plusDays(1), loc);
+                LocalDateTime nextSunrise = Astronomy.computeSunrise(date.plusDays(1), loc, convention);
                 long nightMin = Duration.between(sunset, nextSunrise).toMinutes();
                 return sunset.plusMinutes(nightMin / 2);
             case MADHYAHNA:
@@ -98,12 +120,13 @@ class FestivalFinder {
     }
 
     /** Muhurta window (start, end) as UTC LocalDateTimes. */
-    private static LocalDateTime[] muhurtaWindow(LocalDate date, CityLocation loc, MuhurtaRule rule) {
-        LocalDateTime sunrise = Astronomy.computeSunrise(date, loc);
-        LocalDateTime sunset = Astronomy.computeSunset(date, loc);
+    private static LocalDateTime[] muhurtaWindow(LocalDate date, CityLocation loc, MuhurtaRule rule,
+                                                 SunriseConvention convention) {
+        LocalDateTime sunrise = Astronomy.computeSunrise(date, loc, convention);
+        LocalDateTime sunset = Astronomy.computeSunset(date, loc, convention);
         switch (rule) {
             case NISHITA: {
-                LocalDateTime nextSunrise = Astronomy.computeSunrise(date.plusDays(1), loc);
+                LocalDateTime nextSunrise = Astronomy.computeSunrise(date.plusDays(1), loc, convention);
                 long nightMinutes = Duration.between(sunset, nextSunrise).toMinutes();
                 // Nishita = the 8th of the night's 15 muhurtas (the central muhurta).
                 long muhurta = nightMinutes / 15;
@@ -126,8 +149,9 @@ class FestivalFinder {
      * ends ({@code searchStart=false}). Searches a ±36h window around the date's
      * sunrise. Mirrors the Dart implementation.
      */
-    private static LocalDateTime findTithiTransition(LocalDate date, CityLocation loc, int targetTithi, boolean searchStart) {
-        LocalDateTime sunrise = Astronomy.computeSunrise(date, loc);
+    private static LocalDateTime findTithiTransition(LocalDate date, CityLocation loc, int targetTithi,
+                                                     boolean searchStart, SunriseConvention convention) {
+        LocalDateTime sunrise = Astronomy.computeSunrise(date, loc, convention);
         LocalDateTime lo = sunrise.minusHours(36);
         LocalDateTime hi = sunrise.plusHours(36);
 

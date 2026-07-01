@@ -25,53 +25,54 @@ public final class PanchangAt {
     /** Accuracy tier of the bound location. */
     public LocationSource source() { return loc.source(); }
 
-    /** See {@link Panchang#tithiOnDate(LocalDate, String)}. */
+    /** See {@link Panchang#tithiOnDate(LocalDate, City)}. */
     public TithiInfo tithiOnDate(LocalDate date) {
-        return p.tithiOnDate(date, loc.key());
+        return p.tithiOnDateImpl(date, loc.key());
     }
 
-    /** See {@link Panchang#tithiAtInstant(Instant, String, ZoneOffset)}. */
+    /** See {@link Panchang#tithiAtInstant(Instant, City, ZoneOffset)}. */
     public TithiInfo tithiAtInstant(Instant utcInstant, ZoneOffset offset) {
-        return p.tithiAtInstant(utcInstant, loc.key(), offset);
+        return p.tithiAtInstantImpl(utcInstant, loc.key(), offset);
     }
 
-    /** See {@link Panchang#tithiSegments(Instant, Instant, String, ZoneOffset)}. */
+    /** See {@link Panchang#tithiSegments(Instant, Instant, City, ZoneOffset)}. */
     public List<TithiSegment> tithiSegments(Instant windowStartUtc, Instant windowEndUtc, ZoneOffset offset) {
-        return p.tithiSegments(windowStartUtc, windowEndUtc, loc.key(), offset);
+        return p.tithiSegmentsImpl(windowStartUtc, windowEndUtc, loc.key(), offset);
     }
 
-    /** See {@link Panchang#getDate(LunarMonth, Paksha, int, int, String)}. */
-    public LocalDate getDate(LunarMonth month, Paksha paksha, int tithiInPaksha, int year) {
-        return p.getDate(month, paksha, tithiInPaksha, year, loc.key());
+    /** See {@link Panchang#findDate(LunarMonth, Tithi, int, City)}. */
+    public LocalDate findDate(LunarMonth month, Tithi tithi, int year) {
+        List<LocalDate> dates = p.findDatesImpl(month, tithi.paksha(), tithi.dayInPaksha(), year, loc.key());
+        return dates.isEmpty() ? null : dates.get(0);
     }
 
-    /** See {@link Panchang#getDates(LunarMonth, Paksha, int, int, String)}. */
-    public List<LocalDate> getDates(LunarMonth month, Paksha paksha, int tithiInPaksha, int year) {
-        return p.getDates(month, paksha, tithiInPaksha, year, loc.key());
+    /** See {@link Panchang#findDates(LunarMonth, Tithi, int, City)}. */
+    public List<LocalDate> findDates(LunarMonth month, Tithi tithi, int year) {
+        return p.findDatesImpl(month, tithi.paksha(), tithi.dayInPaksha(), year, loc.key());
     }
 
-    /** See {@link Panchang#findNext(LunarMonth, Paksha, int, String, LocalDate)}. */
-    public LocalDate findNext(LunarMonth month, Paksha paksha, int tithiInPaksha, LocalDate from) {
-        return p.findNext(month, paksha, tithiInPaksha, loc.key(), from);
+    /** See {@link Panchang#findNext(LunarMonth, Tithi, City, LocalDate)}. */
+    public LocalDate findNext(LunarMonth month, Tithi tithi, LocalDate from) {
+        return p.findNextImpl(month, tithi.paksha(), tithi.dayInPaksha(), loc.key(), from);
     }
 
-    /** See {@link Panchang#dateFor(Festival, int, String)}. */
+    /** See {@link Panchang#dateFor(Festival, int, City)}. */
     public FestivalDate dateFor(Festival fest, int year) {
-        return p.dateFor(fest, year, loc.key());
+        return p.dateForImpl(fest, year, loc.key());
     }
 
-    /** See {@link Panchang#recurringDates(Festival, int, String)}. */
+    /** See {@link Panchang#recurringDates(Festival, int, City)}. */
     public List<FestivalDate> recurringDates(Festival fest, int year) {
-        return p.recurringDates(fest, year, loc.key());
+        return p.recurringDatesImpl(fest, year, loc.key());
     }
 
-    /** See {@link Panchang#sunrise(LocalDate, String)}. */
+    /** See {@link Panchang#sunrise(LocalDate, City)}. */
     public Instant sunrise(LocalDate date) {
-        return p.sunrise(date, loc.key());
+        return p.sunriseImpl(date, loc.key());
     }
 
-    /** See {@link Panchang#sunset(LocalDate, String)}. */
+    /** See {@link Panchang#sunset(LocalDate, City)}. */
     public Instant sunset(LocalDate date) {
-        return p.sunset(date, loc.key());
+        return p.sunsetImpl(date, loc.key());
     }
 }

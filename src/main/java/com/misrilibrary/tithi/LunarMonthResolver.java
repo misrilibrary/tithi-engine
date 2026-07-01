@@ -18,15 +18,21 @@ class LunarMonthResolver {
 
     private final MonthSystem system;
     private final String city;
+    private final SunriseConvention convention;
     private final Map<Integer, List<MonthSpan>> cache = new HashMap<>();
 
     public LunarMonthResolver(MonthSystem system, String city) {
+        this(system, city, SunriseConvention.UPPER_LIMB);
+    }
+
+    public LunarMonthResolver(MonthSystem system, String city, SunriseConvention convention) {
         this.system = system;
         this.city = city;
+        this.convention = convention;
     }
 
     public LunarMonthResolver(MonthSystem system) {
-        this(system, City.DEFAULT);
+        this(system, City.DEFAULT_NAME);
     }
 
     /** Get the month info for a specific date. */
@@ -49,7 +55,7 @@ class LunarMonthResolver {
 
     private List<MonthSpan> buildSpans(int year) {
         CityLocation loc = City.getLocation(city);
-        CityCorrections corr = CityCorrections.forCity(city);
+        CityCorrections corr = CityCorrections.forCity(city, convention);
 
         LocalDate scanStart = LocalDate.of(year - 1, 10, 1);
         LocalDate scanEnd = LocalDate.of(year + 1, 3, 1);
@@ -61,7 +67,7 @@ class LunarMonthResolver {
         int prevTithi = -1;
         for (LocalDate dt = scanStart; dt.isBefore(scanEnd); dt = dt.plusDays(1)) {
             int dayIndex = (int) EPOCH.until(dt, ChronoUnit.DAYS);
-            LocalDateTime sunrise = Astronomy.computeSunrise(dt, loc);
+            LocalDateTime sunrise = Astronomy.computeSunrise(dt, loc, convention);
             int meeusT = Astronomy.tithiAt(sunrise);
             // Use corrected tithi for boundary detection
             Integer corrT = corr.getCorrectedTithi(dayIndex);

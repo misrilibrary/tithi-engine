@@ -17,11 +17,11 @@ class CoverageGapTest {
 
     @Test @DisplayName("Adhika month getDates — exercises filterAdhikaMasa path")
     void getDateAdhikaMonth() {
-        // Adhika Jyeshtha 2026: getDates for regular Jyeshtha should NOT return adhika dates
-        List<LocalDate> dates = panchang.getDates(LunarMonth.JYESHTHA, Paksha.SHUKLA, 4, 2026, "Ujjain");
+        // Adhika Jyeshtha 2026: findDates for regular Jyeshtha should NOT return adhika dates
+        List<LocalDate> dates = panchang.findDates(LunarMonth.JYESHTHA, Tithi.shukla(4), 2026, City.of("Ujjain"));
         assertFalse(dates.isEmpty());
         for (LocalDate d : dates) {
-            TithiInfo info = panchang.tithiOnDate(d, "Ujjain");
+            TithiInfo info = panchang.tithiOnDate(d, City.of("Ujjain"));
             // Should find regular Jyeshtha, not adhika
             assertEquals(LunarMonth.JYESHTHA, info.getMonth());
         }
@@ -30,15 +30,15 @@ class CoverageGapTest {
     @Test @DisplayName("Year boundary date — exercises adjacent-year fallback in getMonthInfo")
     void yearBoundaryDate() {
         // Dec 31 and Jan 1 — may need adjacent year scan
-        TithiInfo dec31 = panchang.tithiOnDate(LocalDate.of(2025, 12, 31), "Ujjain");
-        TithiInfo jan1 = panchang.tithiOnDate(LocalDate.of(2026, 1, 1), "Ujjain");
+        TithiInfo dec31 = panchang.tithiOnDate(LocalDate.of(2025, 12, 31), City.of("Ujjain"));
+        TithiInfo jan1 = panchang.tithiOnDate(LocalDate.of(2026, 1, 1), City.of("Ujjain"));
         assertNotNull(dec31.getMonth());
         assertNotNull(jan1.getMonth());
     }
 
     @Test @DisplayName("TithiInfo.toString()")
     void tithiInfoToString() {
-        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 3, 20), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 3, 20), City.of("Ujjain"));
         assertEquals(info.getDisplayName(), info.toString());
     }
 
@@ -83,9 +83,9 @@ class CoverageGapTest {
         assertThrows(IllegalArgumentException.class, () -> City.getLocation("NonexistentCity"));
     }
 
-    @Test @DisplayName("Panchang.getDate returns a valid date")
+    @Test @DisplayName("Panchang.findDate returns a valid date")
     void getDateReturnsValid() {
-        LocalDate date = panchang.getDate(LunarMonth.CHAITRA, Paksha.SHUKLA, 9, 2026, "Ujjain");
+        LocalDate date = panchang.findDate(LunarMonth.CHAITRA, Tithi.shukla(9), 2026, City.of("Ujjain"));
         assertNotNull(date);
         assertEquals(2026, date.getYear());
     }
@@ -93,7 +93,7 @@ class CoverageGapTest {
     @Test @DisplayName("dateFor with SUNRISE muhurta — no shift")
     void dateForSunriseMuhurta() {
         // Ganesh Chaturthi uses SUNRISE — should not shift
-        FestivalDate gcFd = panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, "Ujjain");
+        FestivalDate gcFd = panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, City.of("Ujjain"));
         LocalDate date = gcFd == null ? null : gcFd.getDate();
         assertNotNull(date);
     }

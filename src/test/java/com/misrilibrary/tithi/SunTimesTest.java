@@ -17,8 +17,8 @@ class SunTimesTest {
 
     @Test
     void sunriseBeforeSunsetSensibleLocal() {
-        var sr = p.sunrise(d, "New York");
-        var ss = p.sunset(d, "New York");
+        var sr = p.sunrise(d, City.of("New York"));
+        var ss = p.sunset(d, City.of("New York"));
         assertTrue(sr.isBefore(ss));
         int srH = LocalDateTime.ofInstant(sr, ZoneOffset.ofHours(-4)).getHour(); // EDT
         int ssH = LocalDateTime.ofInstant(ss, ZoneOffset.ofHours(-4)).getHour();
@@ -30,13 +30,13 @@ class SunTimesTest {
     void coordsOnCityCellMatchNamedCity() {
         CityLocation ny = City.getLocation("New York");
         var byCoord = p.at(Location.at(ny.getLatitude(), ny.getLongitude()));
-        assertEquals(p.sunrise(d, "New York"), byCoord.sunrise(d));
-        assertEquals(p.sunset(d, "New York"), byCoord.sunset(d));
+        assertEquals(p.sunrise(d, City.of("New York")), byCoord.sunrise(d));
+        assertEquals(p.sunset(d, City.of("New York")), byCoord.sunset(d));
     }
 
     @Test
     void unsupportedCityThrows() {
-        assertThrows(IllegalArgumentException.class, () -> p.sunrise(d, "Nowhere"));
-        assertThrows(IllegalArgumentException.class, () -> p.sunset(d, "Nowhere"));
+        assertThrows(IllegalArgumentException.class, () -> p.sunrise(d, City.of("Nowhere")));
+        assertThrows(IllegalArgumentException.class, () -> p.sunset(d, City.of("Nowhere")));
     }
 }

@@ -1,6 +1,6 @@
 package com.misrilibrary.tithi.data;
 
-import com.misrilibrary.tithi.model.CityLocation;
+import com.misrilibrary.tithi.model.SunriseConvention;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -14,6 +14,7 @@ import java.util.*;
 public class CityCorrections {
 
     private static final Map<String, CityCorrections> cache = new HashMap<>();
+    private static final Map<String, CityCorrections> centerCache = new HashMap<>();
 
     private final Map<Integer, Integer> tithiCorrections;
     private final Map<Integer, Integer> transitionMinutes;
@@ -28,12 +29,26 @@ public class CityCorrections {
         this.amavasyaCorrections = amavasya;
     }
 
+    /** Corrections for a city under the default (upper-limb) convention. */
     public static CityCorrections forCity(String city) {
+        return forCity(city, SunriseConvention.UPPER_LIMB);
+    }
+
+    /**
+     * Corrections for a {@code city} under {@code convention}. Both the
+     * upper-limb ({@code <key>.json}) and center-disc ({@code <key>.center.json})
+     * tables ship as classpath resources. If the requested convention's file is
+     * absent the maps are empty (the Meeus fallback path), never fabricated.
+     */
+    public static CityCorrections forCity(String city, SunriseConvention convention) {
         // Resolve to the canonical registered city when known, else use the raw
         // input (truly-unknown -> no file -> empty maps). Keeps corrections and
         // coordinates consistent for any spelling of a supported city.
         String name = com.misrilibrary.tithi.City.resolveName(city);
         String key = (name != null ? name : city).toLowerCase().replaceAll("\\s+", "");
+        if (convention == SunriseConvention.CENTER_DISC) {
+            return centerCache.computeIfAbsent(key, k -> load(k + ".center"));
+        }
         return cache.computeIfAbsent(key, CityCorrections::load);
     }
 

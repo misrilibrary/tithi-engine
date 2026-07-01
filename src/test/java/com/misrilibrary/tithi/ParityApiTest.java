@@ -39,16 +39,16 @@ class ParityApiTest {
         assertThrows(IllegalArgumentException.class, () -> City.getLocation("Nonexistent City"));
         assertThrows(IllegalArgumentException.class, () -> City.getLocation("Vancouver, WA"));
         assertThrows(IllegalArgumentException.class,
-                () -> new Panchang(MonthSystem.PURNIMANT).tithiOnDate(LocalDate.of(2026, 1, 3), "Nonexistent City"));
+                () -> new Panchang(MonthSystem.PURNIMANT).tithiOnDate(LocalDate.of(2026, 1, 3), City.of("Nonexistent City")));
         // coords + corrections agree: same tithi for exact vs qualified
         Panchang p = new Panchang(MonthSystem.PURNIMANT);
-        assertEquals(p.tithiOnDate(LocalDate.of(2026, 1, 3), "New York").getTithiNumber(),
-                     p.tithiOnDate(LocalDate.of(2026, 1, 3), "New York, NY").getTithiNumber());
+        assertEquals(p.tithiOnDate(LocalDate.of(2026, 1, 3), City.of("New York")).getTithiNumber(),
+                     p.tithiOnDate(LocalDate.of(2026, 1, 3), City.of("New York, NY")).getTithiNumber());
     }
 
-    @Test @DisplayName("All 230 cities registered with coordinates")
+    @Test @DisplayName("All 245 cities registered with coordinates")
     void allCitiesRegistered() {
-        assertEquals(230, City.supported().size());
+        assertEquals(245, City.supported().size());
         assertNotNull(City.getLocation("São Paulo"));
         assertNotNull(City.getLocation("Medellín"));
         assertEquals("WA", City.getLocation("Seattle").getRegion());
@@ -85,7 +85,7 @@ class ParityApiTest {
 
     @Test @DisplayName("dateFor returns a FestivalDate with tithi span; Maha Shivaratri 2026 = Feb 15")
     void dateForReturnsFestivalDate() {
-        FestivalDate fd = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, "Ujjain");
+        FestivalDate fd = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.of("Ujjain"));
         assertNotNull(fd);
         assertEquals(LocalDate.of(2026, 2, 15), fd.getDate());
         assertNotNull(fd.getTithiStart());
@@ -96,11 +96,11 @@ class ParityApiTest {
 
     @Test @DisplayName("recurringDates: ~12-13 Purnimas in a year, all tithi 15")
     void recurringDates() {
-        List<FestivalDate> purnimas = panchang.recurringDates(Festival.MASIK_PURNIMA, 2026, "Ujjain");
+        List<FestivalDate> purnimas = panchang.recurringDates(Festival.MASIK_PURNIMA, 2026, City.of("Ujjain"));
         assertTrue(purnimas.size() >= 12 && purnimas.size() <= 13,
                 "expected 12-13 purnimas, got " + purnimas.size());
         for (FestivalDate fd : purnimas) {
-            assertEquals(15, panchang.tithiOnDate(fd.getDate(), "Ujjain").getTithiNumber());
+            assertEquals(15, panchang.tithiOnDate(fd.getDate(), City.of("Ujjain")).getTithiNumber());
         }
     }
 
@@ -108,7 +108,7 @@ class ParityApiTest {
 
     @Test @DisplayName("tithiOnDate replaces forDate; Ujjain 2026-02-15 = Phalguna Krishna Trayodashi")
     void tithiOnDate() {
-        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), "Ujjain");
+        TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), City.of("Ujjain"));
         assertEquals("Phalguna Krishna Trayodashi", info.getDisplayName());
     }
 
@@ -118,7 +118,7 @@ class ParityApiTest {
         ZoneOffset ist = ZoneOffset.ofHoursMinutes(5, 30);
         Instant start = LocalDate.of(2026, 2, 15).atStartOfDay().toInstant(ist);
         Instant end = LocalDate.of(2026, 2, 16).atStartOfDay().toInstant(ist);
-        List<TithiSegment> segs = panchang.tithiSegments(start, end, "Ujjain", ist);
+        List<TithiSegment> segs = panchang.tithiSegments(start, end, City.of("Ujjain"), ist);
 
         assertFalse(segs.isEmpty());
         assertEquals(start, segs.get(0).getStartUtc());
@@ -129,7 +129,7 @@ class ParityApiTest {
             assertEquals(i < segs.size() - 1, segs.get(i).isEndTransition());
         }
         // The segment containing local sunrise must equal tithiOnDate's tithi.
-        int sunriseTithi = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), "Ujjain").getTithiNumber();
+        int sunriseTithi = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), City.of("Ujjain")).getTithiNumber();
         assertTrue(segs.stream().anyMatch(s -> s.getTithi().getTithiNumber() == sunriseTithi));
     }
 
@@ -140,8 +140,8 @@ class ParityApiTest {
         Instant end = LocalDate.of(2026, 2, 16).atStartOfDay().toInstant(ist);
         Instant noon = LocalDateTime.of(2026, 2, 15, 12, 0).toInstant(ist); // local noon
 
-        int atInstant = panchang.tithiAtInstant(noon, "Ujjain", ist).getTithiNumber();
-        List<TithiSegment> segs = panchang.tithiSegments(start, end, "Ujjain", ist);
+        int atInstant = panchang.tithiAtInstant(noon, City.of("Ujjain"), ist).getTithiNumber();
+        List<TithiSegment> segs = panchang.tithiSegments(start, end, City.of("Ujjain"), ist);
         int segTithi = segs.stream()
                 .filter(s -> !noon.isBefore(s.getStartUtc()) && noon.isBefore(s.getEndUtc()))
                 .map(s -> s.getTithi().getTithiNumber())
@@ -152,7 +152,7 @@ class ParityApiTest {
     @Test @DisplayName("findNext returns the next occurrence of a tithi")
     void findNext() {
         // Maha Shivaratri tithi = Phalguna Krishna 14; next from 2026-01-01 ≈ mid-Feb.
-        LocalDate next = panchang.findNext(LunarMonth.PHALGUNA, Paksha.KRISHNA, 14, "Ujjain",
+        LocalDate next = panchang.findNext(LunarMonth.PHALGUNA, Tithi.krishna(14), City.of("Ujjain"),
                 LocalDate.of(2026, 1, 1));
         assertNotNull(next);
         assertTrue(next.getYear() == 2026 && next.getMonthValue() <= 3);

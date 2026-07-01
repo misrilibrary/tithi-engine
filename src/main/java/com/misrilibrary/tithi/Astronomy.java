@@ -1,6 +1,7 @@
 package com.misrilibrary.tithi;
 
-import com.misrilibrary.tithi.model.CityLocation;
+import com.misrilibrary.tithi.model.SunriseConvention;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -230,56 +231,69 @@ class Astronomy {
         return norm360(lp + sumL / 1000000.0 + nutation);
     }
 
-    public static LocalDateTime computeSunrise(LocalDate date, CityLocation loc) {
-        LocalDateTime noon = date.atTime(12, 0);
-        double jd = julianDay(noon);
-        double t = (jd - 2451545.0) / 36525.0;
-        double sunLon = sunLongitude(noon);
+    /**
+     * Sun rise/set UTC hours for {@code loc}/{@code convention}, evaluating the
+     * Sun's position at {@code sunInstant}. {@code sign} = -1 for rise
+     * (noon &minus; HA), +1 for set (noon + HA). Mirrors Dart's
+     * {@code _riseSetUtcHours}.
+     */
+    private static double riseSetUtcHours(CityLocation loc, SunriseConvention convention,
+                                          LocalDateTime sunInstant, double sign) {
+        double t = (julianDay(sunInstant) - 2451545.0) / 36525.0;
+        double sunLon = sunLongitude(sunInstant);
         double obliquity = (23.4393 - 0.0130 * t) * DEG2RAD;
         double sunLonRad = sunLon * DEG2RAD;
         double declination = Math.asin(Math.sin(obliquity) * Math.sin(sunLonRad));
-
         double latRad = loc.getLatitude() * DEG2RAD;
-        double cosH = (Math.sin(-0.833 * DEG2RAD) - Math.sin(latRad) * Math.sin(declination))
+        double cosH = (Math.sin(convention.horizonAltitudeDeg() * DEG2RAD) - Math.sin(latRad) * Math.sin(declination))
                     / (Math.cos(latRad) * Math.cos(declination));
+        // Clamp for polar regions (midnight sun / polar night).
         double hourAngle = Math.abs(cosH) > 1.0 ? Math.PI : Math.acos(Math.max(-1, Math.min(1, cosH)));
-
         double rightAsc = Math.atan2(Math.cos(obliquity) * Math.sin(sunLonRad), Math.cos(sunLonRad));
         double meanLon = norm360(280.46646 + 36000.76983 * t + 0.0003032 * t * t) * DEG2RAD;
         double eot = Math.atan2(Math.sin(meanLon - rightAsc), Math.cos(meanLon - rightAsc));
         double eotHours = eot * RAD2DEG / 15.0;
-
         double solarNoonUTC = 12.0 - loc.getLongitude() / 15.0 - eotHours;
-        double sunriseUTC = solarNoonUTC - (hourAngle * RAD2DEG / 15.0);
+        return solarNoonUTC + sign * (hourAngle * RAD2DEG / 15.0);
+    }
 
-        long minutes = Math.round(sunriseUTC * 60);
-        return date.atStartOfDay().plusMinutes(minutes);
+    public static LocalDateTime computeSunrise(LocalDate date, CityLocation loc) {
+        return computeSunrise(date, loc, SunriseConvention.UPPER_LIMB);
+    }
+
+    /**
+     * Exact sunrise (UTC) for {@code date}/{@code loc}. The Sun's declination and
+     * equation-of-time are refined <b>iteratively at the rise instant</b> (3
+     * iterations, seeded at local noon), removing a latitude-growing error; the
+     * result keeps full (sub-minute) resolution. Built via a {@link Duration}
+     * offset from the UTC day start so a rise before/after the UTC day carries to
+     * the correct calendar day. Mirrors Dart's {@code computeSunrise}.
+     */
+    public static LocalDateTime computeSunrise(LocalDate date, CityLocation loc, SunriseConvention convention) {
+        return riseSet(date, loc, convention, -1.0);
     }
 
     public static LocalDateTime computeSunset(LocalDate date, CityLocation loc) {
-        LocalDateTime noon = date.atTime(12, 0);
-        double jd = julianDay(noon);
-        double t = (jd - 2451545.0) / 36525.0;
-        double sunLon = sunLongitude(noon);
-        double obliquity = (23.4393 - 0.0130 * t) * DEG2RAD;
-        double sunLonRad = sunLon * DEG2RAD;
-        double declination = Math.asin(Math.sin(obliquity) * Math.sin(sunLonRad));
+        return computeSunset(date, loc, SunriseConvention.UPPER_LIMB);
+    }
 
-        double latRad = loc.getLatitude() * DEG2RAD;
-        double cosH = (Math.sin(-0.833 * DEG2RAD) - Math.sin(latRad) * Math.sin(declination))
-                    / (Math.cos(latRad) * Math.cos(declination));
-        double hourAngle = Math.abs(cosH) > 1.0 ? Math.PI : Math.acos(Math.max(-1, Math.min(1, cosH)));
+    /**
+     * Exact sunset (UTC) — mirror of {@link #computeSunrise} with noon + hourAngle
+     * instead of noon &minus; hourAngle.
+     */
+    public static LocalDateTime computeSunset(LocalDate date, CityLocation loc, SunriseConvention convention) {
+        return riseSet(date, loc, convention, 1.0);
+    }
 
-        double rightAsc = Math.atan2(Math.cos(obliquity) * Math.sin(sunLonRad), Math.cos(sunLonRad));
-        double meanLon = norm360(280.46646 + 36000.76983 * t + 0.0003032 * t * t) * DEG2RAD;
-        double eot = Math.atan2(Math.sin(meanLon - rightAsc), Math.cos(meanLon - rightAsc));
-        double eotHours = eot * RAD2DEG / 15.0;
-
-        double solarNoonUTC = 12.0 - loc.getLongitude() / 15.0 - eotHours;
-        double sunsetUTC = solarNoonUTC + (hourAngle * RAD2DEG / 15.0);
-
-        long minutes = Math.round(sunsetUTC * 60);
-        return date.atStartOfDay().plusMinutes(minutes);
+    private static LocalDateTime riseSet(LocalDate date, CityLocation loc, SunriseConvention convention, double sign) {
+        LocalDateTime base = date.atStartOfDay();
+        LocalDateTime sunInstant = base.plusHours(12); // noon seed
+        double hours = 0.0;
+        for (int i = 0; i < 3; i++) {
+            hours = riseSetUtcHours(loc, convention, sunInstant, sign);
+            sunInstant = base.plus(Duration.ofMillis(Math.round(hours * 3600000)));
+        }
+        return base.plus(Duration.ofMillis(Math.round(hours * 3600000)));
     }
 
     /** Lahiri ayanamsha (sidereal correction). Calibrated to Swiss Ephemeris. */

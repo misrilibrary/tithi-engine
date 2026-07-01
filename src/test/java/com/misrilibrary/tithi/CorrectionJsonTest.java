@@ -120,23 +120,18 @@ class CorrectionJsonTest {
         assertTrue(violations.isEmpty(), "Amavasya violations: " + violations);
     }
 
-    @Test @DisplayName("Transitions map has same keys as tithi corrections")
+    @Test @DisplayName("Per-city transitions are empty in r3 (handled by the global table)")
     void transitionsMatchTithi() {
+        // r3 DATA: tithi transition instants are corrected by the single global
+        // table (GlobalTransitionCorrections), so per-city transition maps are empty.
         List<String> violations = new ArrayList<>();
         for (String city : City.supported()) {
             CityCorrections corr = CityCorrections.forCity(city);
-            Set<Integer> tithiKeys = corr.getTithiCorrections().keySet();
-            Set<Integer> transKeys = corr.getTransitionMinutes().keySet();
-            if (!tithiKeys.equals(transKeys)) {
-                int missingTrans = 0, extraTrans = 0;
-                for (int k : tithiKeys) if (!transKeys.contains(k)) missingTrans++;
-                for (int k : transKeys) if (!tithiKeys.contains(k)) extraTrans++;
-                if (missingTrans > 0 || extraTrans > 0) {
-                    violations.add(city + " missingTransitions=" + missingTrans + " extraTransitions=" + extraTrans);
-                }
+            if (!corr.getTransitionMinutes().isEmpty()) {
+                violations.add(city + " has " + corr.getTransitionMinutes().size() + " transitions");
             }
         }
-        assertTrue(violations.isEmpty(), "Transition/tithi key mismatch: " + violations);
+        assertTrue(violations.isEmpty(), "Non-empty per-city transitions: " + violations);
     }
 
     @Test @DisplayName("JSON files exist on classpath for all supported cities")
