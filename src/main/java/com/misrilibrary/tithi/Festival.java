@@ -55,7 +55,7 @@ public class Festival {
     public static final Festival AKSHAYA_TRITIYA = new Festival("akshaya_tritiya", "Akshaya Tritiya", LunarMonth.VAISHAKHA, Paksha.SHUKLA, 3, MuhurtaRule.MADHYAHNA);
     public static final Festival GURU_PURNIMA = new Festival("guru_purnima", "Guru Purnima", LunarMonth.ASHADHA, Paksha.SHUKLA, 15, MuhurtaRule.SUNRISE);
     public static final Festival RAKSHA_BANDHAN = new Festival("raksha_bandhan", "Raksha Bandhan", LunarMonth.SHRAVANA, Paksha.SHUKLA, 15, MuhurtaRule.SUNRISE);
-    public static final Festival JANMASHTAMI_KASHMIRI = new Festival("janmashtami_kashmiri", "Zarmasatam (Kashmiri)", LunarMonth.BHADRAPADA, Paksha.KRISHNA, 7, MuhurtaRule.NISHITA, FestivalTradition.KASHMIRI, true, false);
+    public static final Festival JANMASHTAMI_KASHMIRI = new Festival("janmashtami_kashmiri", "Zarmasatam (Kashmiri)", LunarMonth.BHADRAPADA, Paksha.KRISHNA, 7, MuhurtaRule.SUNRISE, FestivalTradition.KASHMIRI, true, false);
     public static final Festival JANMASHTAMI_SMARTA = new Festival("janmashtami_smarta", "Janmashtami (Smarta)", LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, MuhurtaRule.NISHITA, FestivalTradition.SMARTA, true, false);
     public static final Festival JANMASHTAMI_ISKCON = new Festival("janmashtami_iskcon", "Janmashtami (ISKCON)", LunarMonth.BHADRAPADA, Paksha.KRISHNA, 8, MuhurtaRule.SUNRISE, FestivalTradition.VAISHNAVA, true, false);
     public static final Festival GANESH_CHATURTHI = new Festival("ganesh_chaturthi", "Ganesh Chaturthi", LunarMonth.BHADRAPADA, Paksha.SHUKLA, 4, MuhurtaRule.SUNRISE);

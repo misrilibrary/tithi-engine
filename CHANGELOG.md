@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.1.0] — 2026-08-19
+
+Fixed observance rule for `JANMASHTAMI_KASHMIRI` (Zarma Satam), mirroring Dart
+`5.2.0`. Changed `muhurta` from `MuhurtaRule.NISHITA` to `MuhurtaRule.SUNRISE`.
+The festival is now assigned to whichever day holds Krishna Saptami (tithi 7)
+at sunrise instead of checking for the tithi at midnight. This shifts the
+computed date for some year/city combinations and means
+`FestivalDate.muhurtaStart()`/`muhurtaEnd()` are now empty/null for this
+festival. Not a breaking API change — only the returned date/muhurta values
+for this specific festival id are affected.
+
 ## [4.0.0] — 2026-07-01
 
 Breaking cutover to the typed value API (mirroring Dart `5.0.0`/`5.1.1`) **plus**
