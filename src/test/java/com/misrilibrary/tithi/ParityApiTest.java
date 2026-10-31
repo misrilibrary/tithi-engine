@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Tests for the 2.0.0 parity surface: city display names, festivals, time-aware API. */
+/** Tests for the 2.0.0 parity surface: city display names, time-aware API. */
 class ParityApiTest {
 
     private final Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
@@ -68,40 +68,6 @@ class ParityApiTest {
         assertEquals("Naples, Italy", City.displayName("Naples"));  // ambiguous
         assertEquals("Seattle", City.displayName("Seattle"));       // has region but not ambiguous
         assertEquals("Delhi", City.displayName("Delhi"));           // not ambiguous
-    }
-
-    // ─── C: festivals ───
-
-    @Test @DisplayName("Festival set includes Kashmiri + recurring masik festivals")
-    void festivalSet() {
-        var ids = Festival.all().stream().map(f -> f.id).toList();
-        assertTrue(ids.contains("maha_shivaratri_kashmiri"));
-        assertTrue(ids.contains("janmashtami_kashmiri"));
-        assertTrue(ids.contains("masik_purnima"));
-        assertEquals(36, Festival.all().size());
-        assertEquals(FestivalTradition.KASHMIRI, Festival.MAHA_SHIVARATRI_KASHMIRI.tradition);
-        assertTrue(Festival.MASIK_PURNIMA.recurring);
-    }
-
-    @Test @DisplayName("dateFor returns a FestivalDate with tithi span; Maha Shivaratri 2026 = Feb 15")
-    void dateForReturnsFestivalDate() {
-        FestivalDate fd = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.of("Ujjain"));
-        assertNotNull(fd);
-        assertEquals(LocalDate.of(2026, 2, 15), fd.getDate());
-        assertNotNull(fd.getTithiStart());
-        assertNotNull(fd.getTithiEnd());
-        assertTrue(fd.getTithiStart().isBefore(fd.getTithiEnd()));
-        assertNotNull(fd.getMuhurtaStart()); // nishita rule → window present
-    }
-
-    @Test @DisplayName("recurringDates: ~12-13 Purnimas in a year, all tithi 15")
-    void recurringDates() {
-        List<FestivalDate> purnimas = panchang.recurringDates(Festival.MASIK_PURNIMA, 2026, City.of("Ujjain"));
-        assertTrue(purnimas.size() >= 12 && purnimas.size() <= 13,
-                "expected 12-13 purnimas, got " + purnimas.size());
-        for (FestivalDate fd : purnimas) {
-            assertEquals(15, panchang.tithiOnDate(fd.getDate(), City.of("Ujjain")).getTithiNumber());
-        }
     }
 
     // ─── D: time-aware API ───

@@ -73,26 +73,6 @@ class IntegrationTest {
         }
     }
 
-    @Test @DisplayName("Festival dates match Drik Panchang")
-    void festivalDates() {
-        record Expected(String id, int year, String date) {}
-        var truth = List.of(
-            new Expected("maha_shivaratri", 2025, "2025-02-26"),
-            new Expected("maha_shivaratri", 2026, "2026-02-15"),
-            new Expected("ram_navami", 2025, "2025-04-06"),
-            new Expected("ram_navami", 2026, "2026-03-26"),
-            new Expected("diwali", 2025, "2025-10-20"),
-            new Expected("diwali", 2026, "2026-11-08")
-        );
-        for (var exp : truth) {
-            Festival fest = Festival.all().stream().filter(f -> f.id.equals(exp.id)).findFirst().orElseThrow();
-            FestivalDate gotFd = panchangP.dateFor(fest, exp.year, City.of("Ujjain"));
-            LocalDate got = gotFd == null ? null : gotFd.getDate();
-            assertNotNull(got, exp.id + " " + exp.year);
-            assertEquals(exp.date, got.toString(), exp.id + " " + exp.year);
-        }
-    }
-
     @Test @DisplayName("Tokyo sunrise day-carry")
     void tokyoDayCarry() {
         CityLocation loc = City.getLocation("Tokyo");

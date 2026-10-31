@@ -176,20 +176,4 @@ class BranchCoverageTest {
         assertNotNull(corr.getTithiCorrections());
         assertNotNull(corr.getTransitionMinutes());
     }
-
-    // ═══ Panchang.muhurtaUtc: default case (already covered by SUNRISE) ═══
-    // ═══ Panchang.dateFor: null return on empty dates (unreachable) ═══
-
-    @Test @DisplayName("dateFor with all muhurta types")
-    void allMuhurtaTypes() {
-        Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
-        // NISHITA
-        assertNotNull(panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.of("Ujjain")));
-        // PRADOSH
-        assertNotNull(panchang.dateFor(Festival.DIWALI, 2026, City.of("Ujjain")));
-        // MADHYAHNA
-        assertNotNull(panchang.dateFor(Festival.RAM_NAVAMI, 2026, City.of("Ujjain")));
-        // SUNRISE
-        assertNotNull(panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, City.of("Ujjain")));
-    }
 }

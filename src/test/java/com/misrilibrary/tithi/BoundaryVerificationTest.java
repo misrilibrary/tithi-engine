@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Comprehensive boundary verification tests ported from Dart check_* scripts.
- * Covers month boundaries, festivals, sunrise edge cases, and wrap cities
+ * Covers month boundaries, sunrise edge cases, and wrap cities
  * across many cities and years (1900–2100 range).
  */
 class BoundaryVerificationTest {
@@ -94,56 +94,6 @@ class BoundaryVerificationTest {
             }
         }
         assertTrue(checked >= 9, city + ": only " + checked + " Amavasya boundaries found");
-    }
-
-    // ═══ FESTIVALS (from check_festivals.dart) ═══
-
-    @Test
-    @DisplayName("Festival dates match Drik Panchang — Ujjain 2025-2026")
-    void festivalsUjjain() {
-        var truth = Map.ofEntries(
-            Map.entry("maha_shivaratri_2025", "2025-02-26"),
-            Map.entry("maha_shivaratri_2026", "2026-02-15"),
-            Map.entry("holika_dahan_2025", "2025-03-13"),
-            Map.entry("holika_dahan_2026", "2026-03-02"),
-            Map.entry("ram_navami_2025", "2025-04-06"),
-            Map.entry("ram_navami_2026", "2026-03-26"),
-            Map.entry("akshaya_tritiya_2025", "2025-04-30"),
-            Map.entry("akshaya_tritiya_2026", "2026-04-19"),
-            Map.entry("guru_purnima_2025", "2025-07-10"),
-            Map.entry("guru_purnima_2026", "2026-07-29"),
-            Map.entry("janmashtami_smarta_2025", "2025-08-15"),
-            Map.entry("janmashtami_smarta_2026", "2026-09-04"),
-            Map.entry("diwali_2025", "2025-10-20"),
-            Map.entry("diwali_2026", "2026-11-08")
-        );
-        assertFestivals(truth, "Ujjain");
-    }
-
-    @Test
-    @DisplayName("Festival dates — Seattle 2025-2026")
-    void festivalsSeattle() {
-        // Diwali verified for Seattle (pradosh muhurta)
-        var truth = Map.ofEntries(
-            Map.entry("diwali_2025", "2025-10-20"),
-            Map.entry("diwali_2026", "2026-11-08")
-        );
-        assertFestivals(truth, "Seattle");
-    }
-
-    private void assertFestivals(Map<String, String> truth, String city) {
-        for (Festival fest : Festival.all()) {
-            for (int year : new int[]{2025, 2026}) {
-                String key = fest.id + "_" + year;
-                String expected = truth.get(key);
-                if (expected == null) continue;
-                FestivalDate gotFd = panchangP.dateFor(fest, year, City.of(city));
-                LocalDate got = gotFd == null ? null : gotFd.getDate();
-                assertNotNull(got, fest.name + " " + year + " " + city);
-                assertEquals(expected, got.toString(),
-                        fest.name + " " + year + " " + city);
-            }
-        }
     }
 
     // ═══ SUNRISE EDGE CASES (from check_sunrise_east.dart + check_wrap_cities.dart) ═══

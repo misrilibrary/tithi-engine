@@ -21,18 +21,11 @@ cd examples/basic-usage
 ## Expected Output
 
 ```
-Today (2026-06-04) in Ujjain: Jyeshtha Krishna Chaturthi
-Maha Shivaratri 2026 (Ujjain): 2026-02-15
-Diwali 2026 (Seattle): 2026-10-20
-Janmashtami 2026 (Seattle): 2026-08-14
+Today (2026-10-31) in Ujjain: Kartika Krishna Shashthi
+Janmashtami 2026 (Seattle): 2026-09-04
 
-Supported cities (157):
-Agra, Ahmedabad, Allahabad, ...
-
-Festivals 2026 (Ujjain):
-  Maha Shivaratri          2026-02-15
-  Holika Dahan             2026-03-02
-  ...
+Supported cities (230):
+Abu Dhabi, UAE, Accra, Ghana, Addis Ababa, Ethiopia, ...
 ```
 
 ## Using from Maven Central (after published)

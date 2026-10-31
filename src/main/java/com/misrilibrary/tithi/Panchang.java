@@ -22,7 +22,6 @@ import java.util.*;
  * <pre>
  * Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
  * TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), City.UJJAIN);
- * FestivalDate diwali = panchang.dateFor(Festival.DIWALI, 2026, City.SEATTLE);
  * </pre>
  */
 public class Panchang {
@@ -33,7 +32,6 @@ public class Panchang {
     private final SunriseConvention convention;
     private final Map<String, LunarMonthResolver> resolverCache = new HashMap<>();
     private final Map<String, TithiFinder> finderCache = new HashMap<>();
-    private final Map<String, TithiFinder> purnimantFinderCache = new HashMap<>();
 
     public Panchang() { this(MonthSystem.PURNIMANT); }
 
@@ -180,26 +178,6 @@ public class Panchang {
         return null;
     }
 
-    // ── Festivals ───────────────────────────────────────────────────────────
-
-    /** Festival → date with muhurta rules applied; {@code null} if it doesn't occur. */
-    public FestivalDate dateFor(Festival fest, int year, City city) {
-        return dateForImpl(fest, year, city.name());
-    }
-
-    FestivalDate dateForImpl(Festival fest, int year, String city) {
-        return FestivalFinder.findFestivalDate(fest, year, city, getPurnimantFinder(city), convention);
-    }
-
-    /** Recurring festival (e.g. monthly Ekadashi/Purnima) → all occurrences in the year. */
-    public List<FestivalDate> recurringDates(Festival fest, int year, City city) {
-        return recurringDatesImpl(fest, year, city.name());
-    }
-
-    List<FestivalDate> recurringDatesImpl(Festival fest, int year, String city) {
-        return FestivalFinder.findRecurringDates(fest, year, city, convention, getResolver(city));
-    }
-
     /**
      * Sunrise as a UTC {@link Instant} for {@code date} at {@code city}.
      *
@@ -293,9 +271,5 @@ public class Panchang {
 
     private TithiFinder getFinder(String city) {
         return finderCache.computeIfAbsent(city, c -> new TithiFinder(monthSystem, c, convention));
-    }
-
-    private TithiFinder getPurnimantFinder(String city) {
-        return purnimantFinderCache.computeIfAbsent(city, c -> new TithiFinder(MonthSystem.PURNIMANT, c, convention));
     }
 }

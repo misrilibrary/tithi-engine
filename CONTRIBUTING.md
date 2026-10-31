@@ -21,10 +21,6 @@ Thank you for considering contributing! This project is open to improvements, ne
 ./gradlew test        # tests only
 ```
 
-## Adding a Festival
-
-See README.md → "Extensibility → Adding a Festival"
-
 ## Adding a City
 
 See README.md → "Extensibility → Adding a City"

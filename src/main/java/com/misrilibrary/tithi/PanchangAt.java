@@ -56,16 +56,6 @@ public final class PanchangAt {
         return p.findNextImpl(month, tithi.paksha(), tithi.dayInPaksha(), loc.key(), from);
     }
 
-    /** See {@link Panchang#dateFor(Festival, int, City)}. */
-    public FestivalDate dateFor(Festival fest, int year) {
-        return p.dateForImpl(fest, year, loc.key());
-    }
-
-    /** See {@link Panchang#recurringDates(Festival, int, City)}. */
-    public List<FestivalDate> recurringDates(Festival fest, int year) {
-        return p.recurringDatesImpl(fest, year, loc.key());
-    }
-
     /** See {@link Panchang#sunrise(LocalDate, City)}. */
     public Instant sunrise(LocalDate date) {
         return p.sunriseImpl(date, loc.key());

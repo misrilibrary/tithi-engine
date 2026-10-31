@@ -3,12 +3,11 @@
 [![CI](https://github.com/misrilibrary/tithi-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/misrilibrary/tithi-engine/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Computes accurate tithis, lunar months, and festival dates for any city worldwide.
+A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Computes accurate tithis and lunar months for any city worldwide.
 
 ## Features
 
 - **Tithi calculation** — date → tithi number, name, paksha, lunar month
-- **Festival dates** — muhurta-accurate (nishita, madhyahna, pradosh rules)
 - **Month resolution** — moment-based adhika/kshaya detection, Purnimant & Amant systems
 - **Date finding** — tithi → Gregorian date in any year
 - **245 cities** — per-city correction tables verified against Swiss Ephemeris (upper-limb + center-disc)
@@ -19,12 +18,12 @@ A pure Java library for Hindu lunar calendar (tithi/panchang) calculations. Comp
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-implementation("io.github.misrilibrary:tithi-engine:4.0.0")
+implementation("io.github.misrilibrary:tithi-engine:5.0.0")
 ```
 
 **Gradle (Groovy):**
 ```groovy
-implementation 'io.github.misrilibrary:tithi-engine:4.0.0'
+implementation 'io.github.misrilibrary:tithi-engine:5.0.0'
 ```
 
 **Maven:**
@@ -32,7 +31,7 @@ implementation 'io.github.misrilibrary:tithi-engine:4.0.0'
 <dependency>
     <groupId>io.github.misrilibrary</groupId>
     <artifactId>tithi-engine</artifactId>
-    <version>4.0.0</version>
+    <version>5.0.0</version>
 </dependency>
 ```
 
@@ -48,10 +47,6 @@ Panchang panchang = new Panchang(MonthSystem.PURNIMANT);
 // Date → Tithi (sunrise tithi of the panchang day; for display/observance)
 TithiInfo info = panchang.tithiOnDate(LocalDate.of(2026, 2, 15), City.UJJAIN);
 System.out.println(info); // "Phalguna Krishna Trayodashi"
-
-// Festival date (returns a FestivalDate: observance date + tithi span + muhurta window)
-FestivalDate shivaratri = panchang.dateFor(Festival.MAHA_SHIVARATRI, 2026, City.UJJAIN);
-System.out.println("Maha Shivaratri 2026: " + shivaratri.getDate()); // 2026-02-15
 
 // Tithi → Date
 LocalDate date = panchang.findDate(LunarMonth.BHADRAPADA, Tithi.krishna(8), 2026, City.SEATTLE);
@@ -78,8 +73,6 @@ in effect (the library does no timezone resolution).
 | `panchang.findDate(month, tithi, year, city)` | Tithi spec → Gregorian date (`null` if none) |
 | `panchang.findDates(month, tithi, year, city)` | Tithi spec → all dates (adhika-aware) |
 | `panchang.findNext(month, tithi, city, from)` | Next occurrence of a tithi from a date |
-| `panchang.dateFor(festival, year, city)` | Festival → `FestivalDate` (date + tithi span + muhurta window + occurrence month/adhika) |
-| `panchang.recurringDates(festival, year, city)` | Recurring festival → all occurrences in the year |
 | `panchang.at(location)` | Bind to a `Location` (city name or raw `lat/lng`) → `PanchangAt` (same methods, no `city` arg) |
 | `panchang.sunrise(date, city)` / `sunset(date, city)` | Sunrise/sunset UTC `Instant` (Meeus, ~1 min; no per-city correction) |
 | `City.qualifiedName(name)` / `City.displayName(name)` | Display labels (always-qualified / selective) |
@@ -140,8 +133,8 @@ panchang.at(Location.city("Seattle")).tithiOnDate(LocalDate.of(2026, 2, 15));
 ```
 
 `PanchangAt` exposes the same read methods as `Panchang` minus the `city` argument
-(`tithiOnDate`, `tithiAtInstant`, `tithiSegments`, `findDate(s)`, `findNext`, `dateFor`,
-`recurringDates`). Cities are stored at ~0.1° (~11 km), so any point within a city's cell
+(`tithiOnDate`, `tithiAtInstant`, `tithiSegments`, `findDate(s)`, `findNext`).
+Cities are stored at ~0.1° (~11 km), so any point within a city's cell
 is treated as that city; see `City.cityForCell(lat,lng)`.
 
 > **Recommendation:** prefer `Location.city(name)` (or a coordinate that lands in a
@@ -150,47 +143,7 @@ is treated as that city; see `City.cityForCell(lat,lng)`.
 > day‑assignment): excellent, but the rare knife‑edge days a city's correction would fix
 > are not covered. Use raw coordinates only when no nearby supported city exists.
 
-## Supported Festivals
-
-| Festival | Muhurta Rule | Tradition |
-|----------|-------------|-----------|
-| Herath (Maha Shivaratri, Kashmiri) | Nishita (midnight) | Kashmiri |
-| Maha Shivaratri | Nishita (midnight) | General |
-| Holika Dahan | Pradosh (evening) | General |
-| Ram Navami | Madhyahna (midday) | General |
-| Akshaya Tritiya | Madhyahna (midday) | General |
-| Guru Purnima | Sunrise | General |
-| Raksha Bandhan | Sunrise | General |
-| Zarmasatam (Janmashtami, Kashmiri) | Nishita (midnight) | Kashmiri |
-| Janmashtami (Smarta) | Nishita (midnight) | Smarta |
-| Janmashtami (ISKCON) | Sunrise | Vaishnava |
-| Ganesh Chaturthi | Sunrise | General |
-| Vijayadashami | Sunrise | General |
-| Diwali / Lakshmi Puja | Pradosh (evening) | General |
-
-Plus 6 **recurring** monthly tithis (`recurring = true`), enumerated via
-`recurringDates(...)`: Krishna Ashtami, Shukla Ashtami, Krishna Ekadashi,
-Shukla Ekadashi, Purnima, Amavasya.
-
 ## Extensibility
-
-### Adding a Festival
-
-1. Open `Festival.java`
-2. Add a constant:
-   ```java
-   public static final Festival KARVA_CHAUTH = new Festival(
-       "karva_chauth", "Karva Chauth",
-       LunarMonth.KARTIKA, Paksha.KRISHNA, 4, MuhurtaRule.PRADOSH);
-   ```
-3. Add it to the `ALL` list (same file, bottom):
-   ```java
-   private static final List<Festival> ALL = List.of(
-       ...,
-       KARVA_CHAUTH  // ← add here
-   );
-   ```
-4. Run `./gradlew test` — `ExtensibilityGuardTest` will fail if you forget step 3.
 
 ### Adding a City
 
@@ -206,17 +159,34 @@ This simultaneously creates the constant and registers the city with coordinates
 
 Run `./gradlew test` — `ExtensibilityGuardTest` will fail if you declare a constant without using `reg()`.
 
-### Adding a Muhurta Rule
+## Migrating to 5.0: festivals removed
 
-1. Add to the `MuhurtaRule` enum
-2. Handle the new case in `Panchang.muhurtaUtc()` switch statement
+5.0.0 removes festival support (`Festival`, `FestivalFinder`, `FestivalDate`,
+`FestivalTradition`, `MuhurtaRule`, `Panchang.dateFor`, `Panchang.recurringDates`,
+and their `PanchangAt` views) entirely, mirroring the Dart companion's `6.0.0`.
+This library is now a pure tithi/panchang astronomy engine — accurate
+sunrise-tithi, lunar-month, and date-finding calculations only.
+
+**Why:** festival-date assignment carries far more tradition-specific nuance
+than a single `MuhurtaRule` enum (`SUNRISE`/`NISHITA`/`MADHYAHNA`/`PRADOSH`) can
+represent — regional calendars (Smarta vs. Vaishnava vs. Kashmiri), adhika/kshaya
+edge cases, and sampradaya-specific tie-breaking rules all affect which day a
+festival lands on. The bundled `Festival` list got some of these wrong for
+certain traditions/regions, and fixing them correctly means modeling rules this
+library was never scoped to own. Tithi/lunar-month calculation has a single
+astronomical answer; festival-date assignment does not. Pin `tithi-engine:4.1.0`
+if you still need the removed festival API — it is not coming back under a flag.
+
+**If you used festival dates:** vendor your own `Festival`-style table (id,
+month, paksha, tithiInPaksha, muhurta rule) outside this library and drive it
+off `Panchang.tithiOnDate`/`tithiSegments`/`findDate`/`findDates` — the same
+primitives `FestivalFinder` used internally, now just not bundled.
 
 ## Architecture
 
 ```
 src/main/java/com/misrilibrary/tithi/
 ├── Panchang.java             ← Public API (single entry point)
-├── Festival.java             ← Festival definitions + registry
 ├── City.java                 ← City constants + registry (single file)
 ├── Astronomy.java            ← VSOP87 Sun + Meeus Moon (TT/ΔT), iterative sunrise/sunset
 ├── CityLocation.java         ← Internal (package-private) city coords/offset
@@ -244,9 +214,8 @@ src/main/resources/corrections/
 | Tithi vs Swiss Ephemeris (center-disc) | 0 mismatches / 73,414 days × 245 cities (1900–2100) |
 | Java ⟷ Dart engine parity | 0 mismatches / 17,986,430 tithiOnDate points per convention |
 | Month boundaries (Purnimant) | 100% (200 years, verified cities) |
-| Festival dates vs Drik Panchang | 22/22 (2025–2026) |
 | Meeus fallback (no correction table) | ~99.9% |
-| Test coverage | 140 tests, high line/branch coverage |
+| Test coverage | 138 tests, high line/branch coverage |
 
 > **Note:** The Maven group ID is `io.github.misrilibrary` but the Java package is `com.misrilibrary.tithi`. This is intentional and standard practice — the two don't need to match.
 
@@ -294,7 +263,6 @@ The two packages **version independently** — each version string is a semver c
 | `SunriseConvention` toggle (upper-limb / center-disc) | `4.0.0+` | `4.2.0+` |
 | Iterative sunrise/sunset + engine code rev `r3` | `4.0.0+` | `4.3.0+` |
 | Global transition-correction consumption hook | `4.0.0+` | `4.3.0+` |
-| `FestivalDate.month` / `isAdhika` (recurring-month fix) | `4.0.0+` | `4.3.1+` |
 | `Tithi` + `City` typed value API (typed `findDate`/`findDates`/`findNext`) | `4.0.0+` | `4.4.0+` |
 | Breaking typed cutover (`City`/`Tithi` everywhere, `CityLocation` internal) | `4.0.0+` | `5.0.0`/`5.1.1` |
 | Engine `r3` **DATA** (center-disc tables + global transition list; 245 cities) | `4.0.0+` | `4.2.0+`/`4.3.0+` |
@@ -304,7 +272,7 @@ The two packages **version independently** — each version string is a semver c
 > resolution (unknown cities now throw — a behavior break) and coordinate input
 > (`Location` / `Panchang.at`); `3.1.0` ⟷ `4.1.0` add sunrise/sunset. Java
 > Java `4.0.0` ports the Dart `4.2.0`–`5.1.1` surface — `SunriseConvention`,
-> iterative `r3` sunrise code, `FestivalDate.month`, and the `Tithi`+`City` typed
+> iterative `r3` sunrise code, and the `Tithi`+`City` typed
 > value API (breaking at Java `4.0.0` ⟷ Dart `5.0.0`/`5.1.1`). At Java
 > `4.0.0` the `r3` correction-table DATA (center-disc tables and the global
 > transition-correction list) is transcoded from the Dart `5.1.x` data, so the

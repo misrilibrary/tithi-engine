@@ -89,12 +89,4 @@ class CoverageGapTest {
         assertNotNull(date);
         assertEquals(2026, date.getYear());
     }
-
-    @Test @DisplayName("dateFor with SUNRISE muhurta — no shift")
-    void dateForSunriseMuhurta() {
-        // Ganesh Chaturthi uses SUNRISE — should not shift
-        FestivalDate gcFd = panchang.dateFor(Festival.GANESH_CHATURTHI, 2026, City.of("Ujjain"));
-        LocalDate date = gcFd == null ? null : gcFd.getDate();
-        assertNotNull(date);
-    }
 }

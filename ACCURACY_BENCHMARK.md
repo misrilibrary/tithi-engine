@@ -61,7 +61,7 @@ mismatches vs the `.se1`-validated Dart engine.
   instant grid).
 - **Direct** — swept in Java against the Dart truth.
 - **Inherited** — guaranteed by Meeus byte-identity + verbatim-transcoded data;
-  exercised by the JUnit suite (147 tests).
+  exercised by the JUnit suite (138 tests).
 - **Derived** — deterministic function of an Exhaustive/Direct quantity.
 
 ## Known residual (sub-minute, accepted)
@@ -74,10 +74,9 @@ transition correction. Deferred (matches Dart).
 
 ## Coverage backlog (mirrors Dart)
 
-- **findNext / recurringDates** — share finder logic with `findDates` (row 14) but
-  aren't independently swept.
+- **findNext** — shares finder logic with `findDates` (row 14) but
+  isn't independently swept.
 - **Polar / extreme-latitude no-rise/no-set days** — clamped approximation.
-- **Muhurta window times** (nishita/madhyahna/pradosh) — spot-checked, not swept.
 - **Historical civil offsets (pre-~1945)** — caller-supplied offset; not modeled.
 - **Out-of-range dates** — behavior outside 1900–2100 is undefined.
 
